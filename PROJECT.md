@@ -4,6 +4,8 @@
 
 Pullstart is a repo-aware onboarding product being built to read setup contracts, check the local environment, plan the shortest safe bootstrap path, execute or guide setup steps, and verify the result.
 
+Phase 1 now ends at a frozen contract and proof boundary: one canonical `setup.spec.yaml`, one proof-repo checklist, and one narrow MVP claim. Planner and executor implementation begins only after that surface is fixed.
+
 ## Target user
 
 The first target user is a developer who has just cloned a repo and wants to get it running locally without spending an hour decoding setup docs, guessing tool versions, or discovering missing services through failure.
@@ -57,6 +59,12 @@ The initial product promise is simple:
 ## Canonical onboarding contract surface
 
 Pullstart MVP chooses `setup.spec.yaml` as the canonical onboarding contract surface.
+
+The current Phase 1 contract boundary is:
+
+- one versioned `setup.spec.yaml` surface
+- one strict schema-backed contract definition
+- one canonical proof fixture for the Node.js API + PostgreSQL slice
 
 ### Why it wins
 
@@ -118,6 +126,8 @@ Pullstart produces a safe ordered plan, executes or guides the required setup fl
 - the setup stops with a structured blocker report that clearly identifies the missing prerequisite or failing step
 
 That is the first proof scenario, not an already-earned portability claim.
+
+The implementation-facing checklist for that proof repo is now explicit as well, so later phases do not need to reinterpret this scenario from scratch.
 
 ## Product principles
 

@@ -2,7 +2,7 @@
 
 Pullstart is a repo-aware onboarding product being built to get cloned projects running faster.
 
-Phase 1 freezes the contract and proof boundary for MVP. Phase 2 starts building the planner and later phases add execution, verification, and blocker reporting against that frozen surface.
+Phase 1 freezes the contract and proof boundary for MVP. That means the repo now has one canonical onboarding contract, one proof-repo checklist, and one narrow success claim for the first implementation cycle. Phase 2 starts building the planner against that already-defined surface.
 
 ## The wedge
 
@@ -56,7 +56,7 @@ Pullstart v1 does not include:
 
 Pullstart needs a contract that is readable by humans and reliable for agents. `setup.spec.yaml` is the canonical onboarding surface because it keeps setup intent structured, versionable, and explicit without forcing every repo to encode onboarding logic in prose.
 
-Other files like `README.md`, `AGENTS.md`, and `ONBOARDING.md` still matter, but in MVP they are supporting context, not the source of truth.
+In Phase 1, that contract is now backed by a strict schema and one canonical proof fixture under `contracts/`. Other files like `README.md`, `AGENTS.md`, and `ONBOARDING.md` still matter, but in MVP they are supporting context, not the source of truth.
 
 ## First proof scenario
 
@@ -70,6 +70,8 @@ The first proof target is a single Node.js API proof repo with:
 Pullstart earns its first proof only if a developer can clone that repo on a half-prepared machine, run the eventual MVP flow, and end with the app booting locally plus a passing health verification, or a precise blocker report that names the missing prerequisite.
 
 Until that proof exists, Pullstart does not claim broad portability across arbitrary repos or stacks.
+
+The implementation-facing boundary for that proof now lives in the proof scenario, proof checklist, and contract artifacts created in Phase 1. Those documents narrow what Phase 2 is allowed to build; they do not expand the MVP promise.
 
 ## Roadmap
 
