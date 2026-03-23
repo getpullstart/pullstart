@@ -1,0 +1,570 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pullstart.dev/contracts/setup.spec.schema.json",
+  "title": "Pullstart Setup Contract",
+  "description": "Strict MVP onboarding contract for a Node.js API repository with PostgreSQL.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "repo",
+    "tools",
+    "services",
+    "env",
+    "steps",
+    "verify"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 0,
+      "description": "MVP contract version. Version 0 freezes the Phase 1 contract surface.",
+      "examples": [
+        0
+      ]
+    },
+    "repo": {
+      "type": "object",
+      "description": "Minimal repository metadata that helps humans review what this contract is for.",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "description"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable repo label used in logs and docs.",
+          "examples": [
+            "sample-node-api"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short explanation of the onboarding slice this contract covers.",
+          "examples": [
+            "Proof repo contract for a Node.js API with PostgreSQL and a health check."
+          ]
+        }
+      }
+    },
+    "tools": {
+      "type": "array",
+      "description": "Required local tooling for the proof onboarding path.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/toolRequirement"
+      },
+      "examples": [
+        [
+          {
+            "name": "node",
+            "version": "20.x",
+            "required": true
+          },
+          {
+            "name": "pnpm",
+            "version": "9.x",
+            "required": true
+          }
+        ]
+      ]
+    },
+    "services": {
+      "type": "array",
+      "description": "External services the repo needs before app startup can succeed.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/serviceRequirement"
+      },
+      "examples": [
+        [
+          {
+            "name": "postgres",
+            "kind": "postgres",
+            "required": true,
+            "strategy": "one_of",
+            "options": [
+              {
+                "id": "docker-compose",
+                "type": "docker-compose",
+                "command": "docker compose up -d postgres"
+              },
+              {
+                "id": "local-instance",
+                "type": "existing",
+                "note": "Use an already running local PostgreSQL instance."
+              }
+            ],
+            "healthcheck": {
+              "type": "tcp",
+              "target": "localhost:5432"
+            }
+          }
+        ]
+      ]
+    },
+    "env": {
+      "type": "object",
+      "description": "Environment file expectations that must be satisfied before runtime steps.",
+      "additionalProperties": false,
+      "required": [
+        "required_files",
+        "required_vars"
+      ],
+      "properties": {
+        "required_files": {
+          "type": "array",
+          "description": "Files developers must create or maintain for the proof slice.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/envFile"
+          },
+          "examples": [
+            [
+              {
+                "path": ".env",
+                "example": ".env.example"
+              }
+            ]
+          ]
+        },
+        "required_vars": {
+          "type": "array",
+          "description": "Named environment variables the repo expects to exist.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/envVar"
+          },
+          "examples": [
+            [
+              {
+                "name": "DATABASE_URL",
+                "source": ".env.example"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered setup actions for the single proof success path.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/step"
+      },
+      "examples": [
+        [
+          {
+            "id": "install",
+            "name": "Install dependencies",
+            "run": "pnpm install"
+          },
+          {
+            "id": "migrate",
+            "name": "Run database migrations",
+            "run": "pnpm db:migrate"
+          }
+        ]
+      ]
+    },
+    "verify": {
+      "type": "array",
+      "description": "Explicit success checks that prove the repo is runnable enough for local development.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/verification"
+      },
+      "examples": [
+        [
+          {
+            "id": "api-health",
+            "name": "Health endpoint responds",
+            "type": "http",
+            "target": "http://localhost:3000/health",
+            "expect_status": 200
+          }
+        ]
+      ]
+    }
+  },
+  "$defs": {
+    "toolRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "required"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Tool name as it appears in shell usage or installation guidance.",
+          "examples": [
+            "node",
+            "pnpm",
+            "docker"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Supported version range for the tool.",
+          "examples": [
+            "20.x",
+            "9.x",
+            "24+"
+          ]
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether the proof path depends on the tool being available.",
+          "examples": [
+            true
+          ]
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional human context that does not replace structured requirements.",
+          "examples": [
+            "Docker is only needed when using the compose-backed Postgres option."
+          ]
+        }
+      }
+    },
+    "serviceRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "kind",
+        "required",
+        "strategy",
+        "options",
+        "healthcheck"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Service label used in setup and verification messaging.",
+          "examples": [
+            "postgres"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "postgres"
+          ],
+          "description": "Concrete service type supported by the MVP proof slice.",
+          "examples": [
+            "postgres"
+          ]
+        },
+        "required": {
+          "type": "boolean",
+          "const": true,
+          "description": "Services in the MVP slice are required for success.",
+          "examples": [
+            true
+          ]
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "one_of"
+          ],
+          "description": "Declares that one listed service option must be satisfied without encoding planner logic.",
+          "examples": [
+            "one_of"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "description": "Allowed ways to satisfy the service requirement.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/serviceOption"
+          }
+        },
+        "healthcheck": {
+          "$ref": "#/$defs/serviceHealthcheck"
+        }
+      }
+    },
+    "serviceOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Stable identifier for the service option.",
+          "examples": [
+            "docker-compose",
+            "local-instance"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "docker-compose",
+            "existing"
+          ],
+          "description": "How the service option is satisfied.",
+          "examples": [
+            "docker-compose"
+          ]
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Command used when the option is something Pullstart could later execute or guide.",
+          "examples": [
+            "docker compose up -d postgres"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable context for an option that is satisfied outside repo automation.",
+          "examples": [
+            "Use an already running local PostgreSQL instance."
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "docker-compose"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "command"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "existing"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "note"
+            ]
+          }
+        }
+      ]
+    },
+    "serviceHealthcheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "target"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "tcp"
+          ],
+          "description": "Healthcheck type for required backing services.",
+          "examples": [
+            "tcp"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^[^\\s]+:[0-9]+$",
+          "description": "Host and port the service should expose when healthy.",
+          "examples": [
+            "localhost:5432"
+          ]
+        }
+      }
+    },
+    "envFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "example"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Runtime env file expected by the repo.",
+          "examples": [
+            ".env"
+          ]
+        },
+        "example": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Template file developers should copy or inspect.",
+          "examples": [
+            ".env.example"
+          ]
+        }
+      }
+    },
+    "envVar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "source"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Environment variable name required by the proof repo.",
+          "examples": [
+            "DATABASE_URL",
+            "PORT"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where the expected value is documented for authors or operators.",
+          "examples": [
+            ".env.example"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional explanation of how the variable supports onboarding.",
+          "examples": [
+            "Database connection string used by migrations and app startup."
+          ]
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "run"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Stable step identifier for ordered execution and reporting.",
+          "examples": [
+            "install",
+            "start-postgres",
+            "migrate",
+            "start-app"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable label for the setup action.",
+          "examples": [
+            "Install dependencies"
+          ]
+        },
+        "run": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Command that advances the repo toward the proof success path.",
+          "examples": [
+            "pnpm install"
+          ]
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional execution context that supplements but does not replace structured intent.",
+          "examples": [
+            "Keep this process running while verification checks execute."
+          ]
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "type",
+        "target",
+        "expect_status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Stable identifier for the verification check.",
+          "examples": [
+            "api-health"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable success condition.",
+          "examples": [
+            "Health endpoint responds"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "http"
+          ],
+          "description": "Verification type supported by the MVP proof slice.",
+          "examples": [
+            "http"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI to probe for the app-level success boundary.",
+          "examples": [
+            "http://localhost:3000/health"
+          ]
+        },
+        "expect_status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599,
+          "description": "HTTP status code expected when the app has started successfully.",
+          "examples": [
+            200
+          ]
+        }
+      }
+    }
+  }
+}
