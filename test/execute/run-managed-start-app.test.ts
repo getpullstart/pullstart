@@ -45,6 +45,9 @@ describe('EXEC-04 runManagedStartApp', () => {
     expect(result.status).toBe('blocked')
     expect(result.reason).toContain('already healthy')
     expect(result.nextAction).toContain('rerun')
+    expect(result.runtimeEvidence?.[0]?.source).toBe('runtime-observed')
+    expect(result.runtimeEvidence?.[0]?.state).toBe('satisfied')
+    expect(result.runtimeEvidence?.[0]?.subject).toContain('.preflight')
   })
 
   it('terminates managed app process on verification success', async () => {
@@ -61,6 +64,7 @@ describe('EXEC-04 runManagedStartApp', () => {
 
     expect(result.status).toBe('success')
     expect(processRef.kill).toHaveBeenCalled()
+    expect(result.runtimeEvidence?.some((item) => item.source === 'runtime-observed')).toBe(true)
   })
 
   it('returns deterministic blocked guidance on status mismatch', async () => {
@@ -85,5 +89,6 @@ describe('EXEC-04 runManagedStartApp', () => {
     expect(result.reason).toContain('never reached expected status')
     expect(result.nextAction).toContain('expected status')
     expect(processRef.kill).toHaveBeenCalled()
+    expect(result.runtimeEvidence?.some((item) => item.source === 'runtime-observed')).toBe(true)
   })
 })

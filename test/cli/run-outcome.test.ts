@@ -19,7 +19,27 @@ describe('EXEC-02/EXEC-04 run outcome reporting', () => {
           decision: 'can-act',
           nextStepId: 'install',
           checks: [],
-          caveats: []
+          caveats: [],
+          factRefs: [
+            {
+              id: 'fact:repo:package-json',
+              source: 'observed-repo',
+              subject: 'repo.package-json',
+              state: 'satisfied',
+              summary: 'package.json exists',
+              affectsStepIds: ['install']
+            }
+          ],
+          unknownEvidence: [
+            {
+              id: 'unknown:network:registry',
+              source: 'inferred',
+              scope: 'network',
+              state: 'unresolved-until-execution',
+              rationale: 'Network reachability is unknown until install runs',
+              affectsStepIds: ['install']
+            }
+          ]
         },
         verification: {
           id: 'api-health',
@@ -46,6 +66,8 @@ describe('EXEC-02/EXEC-04 run outcome reporting', () => {
     )
 
     expect(outcome.status).toBe('success')
+    expect(outcome.factRefs?.[0]?.id).toBe('fact:repo:package-json')
+    expect(outcome.unknownEvidence?.[0]?.id).toBe('unknown:network:registry')
     const rendered = renderRunOutcome(outcome)
     expect(rendered).toContain('Status: success')
   })
@@ -64,7 +86,17 @@ describe('EXEC-02/EXEC-04 run outcome reporting', () => {
           decision: 'can-act',
           nextStepId: 'install',
           checks: [],
-          caveats: ['Auth certainty is unknown.']
+          caveats: ['Auth certainty is unknown.'],
+          unknownEvidence: [
+            {
+              id: 'unknown:auth:registry',
+              source: 'inferred',
+              scope: 'auth',
+              state: 'unresolved-until-execution',
+              rationale: 'Auth certainty is unknown before install',
+              affectsStepIds: ['install']
+            }
+          ]
         },
         verification: {
           id: 'api-health',

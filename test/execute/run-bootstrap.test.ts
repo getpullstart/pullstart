@@ -22,7 +22,36 @@ const input: RunBootstrapInput = {
     decision: 'can-act',
     nextStepId: 'install',
     checks: [],
-    caveats: ['network reachability for install is unknown']
+    caveats: ['network reachability for install is unknown'],
+    factRefs: [
+      {
+        id: 'fact:repo:package-json',
+        source: 'observed-repo',
+        subject: 'repo.package-json',
+        state: 'satisfied',
+        summary: 'package.json exists',
+        affectsStepIds: ['install', 'migrate', 'start-app']
+      }
+    ],
+    contradictions: [
+      {
+        id: 'contradiction:service-option:docker-compose:declared-vs-observed',
+        declaredFactId: 'fact:repo:service-option:postgres:docker-compose:declared',
+        observedFactId: 'fact:repo:service-option:postgres:docker-compose:viability',
+        summary: 'Declared compose option is not currently viable from observed evidence',
+        affectsStepIds: ['start-postgres', 'migrate', 'start-app']
+      }
+    ],
+    unknownEvidence: [
+      {
+        id: 'unknown:auth:registry',
+        source: 'inferred',
+        scope: 'auth',
+        state: 'unresolved-until-execution',
+        rationale: 'Registry auth is unknown until install is attempted',
+        affectsStepIds: ['install']
+      }
+    ]
   },
   verification: {
     id: 'api-health',
@@ -58,6 +87,18 @@ describe('EXEC-01/EXEC-03 runBootstrap', () => {
     expect(outcome.events.map((item) => item.type)).toEqual(
       expect.arrayContaining(['step-start', 'step-success', 'step-guided'])
     )
+    expect(outcome.runtimeEvidence.length).toBeGreaterThan(0)
+    expect(outcome.factRefs).toEqual(input.verdict.factRefs)
+    expect(outcome.contradictions).toEqual(input.verdict.contradictions)
+    expect(outcome.unknownEvidence).toEqual(input.verdict.unknownEvidence)
+
+    const stepSuccessEvent = outcome.events.find((item) => item.type === 'step-success')
+    expect(stepSuccessEvent?.details?.runtimeEvidenceRefs).toBeDefined()
+    expect(stepSuccessEvent?.details?.factRefs).toEqual(['fact:repo:package-json'])
+    expect(stepSuccessEvent?.details?.contradictionRefs).toEqual([
+      'contradiction:service-option:docker-compose:declared-vs-observed'
+    ])
+    expect(stepSuccessEvent?.details?.unknownEvidenceRefs).toEqual(['unknown:auth:registry'])
   })
 
   it('stops immediately with blocked outcome when a finite step fails', async () => {
@@ -118,5 +159,7 @@ describe('EXEC-01/EXEC-03 runBootstrap', () => {
     expect(outcome.events.some((event) => event.type === 'verification-failed')).toBe(true)
     const verificationEvent = outcome.events.find((event) => event.type === 'verification-failed')
     expect(verificationEvent?.details?.nextAction).toContain('expected status')
+    expect(verificationEvent?.details?.runtimeEvidenceRefs).toBeDefined()
+    expect(outcome.unknownEvidence).toEqual(input.verdict.unknownEvidence)
   })
 })

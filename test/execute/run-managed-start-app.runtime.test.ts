@@ -110,6 +110,8 @@ describe('runtime managed start-app verification behavior', () => {
     )
 
     expect(result.status).toBe('success')
+    expect(result.runtimeEvidence?.some((item) => item.source === 'runtime-observed')).toBe(true)
+    expect(result.runtimeEvidence?.some((item) => item.subject.includes('.result'))).toBe(true)
 
     const closed = await waitForClosedPort(port)
     expect(closed).toBe(true)
@@ -157,5 +159,7 @@ describe('runtime managed start-app verification behavior', () => {
     expect(result.reason).toContain('ambiguous')
     expect(result.nextAction).toContain('rerun')
     expect(startProcess).not.toHaveBeenCalled()
+    expect(result.runtimeEvidence?.[0]?.source).toBe('runtime-observed')
+    expect(result.runtimeEvidence?.[0]?.state).toBe('satisfied')
   })
 })

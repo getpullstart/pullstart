@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process'
 
 import type { VerificationStep } from '../contract/setup-spec-types.js'
+import type { FactRecord } from '../evidence/evidence-types.js'
 import { verifyHttpTarget } from '../verify/verify-http-target.js'
 import type { ManagedStartAppResult } from './execution-types.js'
 
@@ -53,6 +54,22 @@ function mapBlockedResult(result: Awaited<ReturnType<typeof verifyHttpTarget>>) 
   }
 }
 
+function makeRuntimeEvidence(
+  verification: VerificationStep,
+  subjectSuffix: string,
+  state: FactRecord['state'],
+  summary: string
+): FactRecord {
+  return {
+    id: `fact:runtime:verification:${verification.id}:${subjectSuffix}`,
+    source: 'runtime-observed',
+    subject: `verification.${verification.id}.${subjectSuffix}`,
+    state,
+    summary,
+    affectsStepIds: ['start-app']
+  }
+}
+
 export async function runManagedStartApp(
   repoRoot: string,
   stepCommand: string,
@@ -70,6 +87,15 @@ export async function runManagedStartApp(
   })
 
   if (preflight.status === 'success') {
+    const runtimeEvidence = [
+      makeRuntimeEvidence(
+        verification,
+        'preflight',
+        'satisfied',
+        'verification target already healthy before managed startup'
+      )
+    ]
+
     return {
       status: 'blocked',
       reason: 'verification target was already healthy before start-app; state is ambiguous',
@@ -79,7 +105,8 @@ export async function runManagedStartApp(
       details: {
         attempts: preflight.attempts,
         lastStatus: preflight.lastStatus
-      }
+      },
+      runtimeEvidence
     }
   }
 
@@ -144,7 +171,17 @@ export async function runManagedStartApp(
         status: 'blocked',
         reason: `start-app failed before verification: ${winner.result.error.message}`,
         nextAction: 'Fix start-app command errors and retry run.',
-        logs
+        logs,
+        runtimeEvidence: [
+          {
+            id: `fact:runtime:start-app:${verification.id}:process-error`,
+            source: 'runtime-observed',
+            subject: `start-app.${verification.id}.process-error`,
+            state: 'missing',
+            summary: winner.result.error.message,
+            affectsStepIds: ['start-app']
+          }
+        ]
       }
     }
 
@@ -152,13 +189,31 @@ export async function runManagedStartApp(
       status: 'blocked',
       reason: `start-app exited before verification (code: ${winner.result.code ?? 'null'})`,
       nextAction: 'Inspect startup logs, resolve app exit cause, and retry run.',
-      logs
+      logs,
+      runtimeEvidence: [
+        {
+          id: `fact:runtime:start-app:${verification.id}:process-exit`,
+          source: 'runtime-observed',
+          subject: `start-app.${verification.id}.process-exit`,
+          state: 'missing',
+          summary: `start-app exited before verification (code: ${winner.result.code ?? 'null'})`,
+          affectsStepIds: ['start-app']
+        }
+      ]
     }
   }
 
   terminate()
 
   if (winner.result.status === 'success') {
+    const runtimeEvidence = [
+      makeRuntimeEvidence(
+        verification,
+        'result',
+        'satisfied',
+        'verification target reached expected status while app was managed'
+      )
+    ]
     return {
       status: 'success',
       reason: 'verification target responded with expected status while app was managed',
@@ -168,7 +223,8 @@ export async function runManagedStartApp(
         durationMs: winner.result.durationMs,
         verificationTarget: verification.target,
         expectStatus: verification.expect_status
-      }
+      },
+      runtimeEvidence
     }
   }
 
@@ -186,6 +242,14 @@ export async function runManagedStartApp(
       verificationTarget: verification.target,
       expectStatus: verification.expect_status,
       resultState: winner.result.status
-    }
+    },
+    runtimeEvidence: [
+      makeRuntimeEvidence(
+        verification,
+        'result',
+        winner.result.status === 'network-error' ? 'unknown' : 'missing',
+        mapped.reason
+      )
+    ]
   }
 }

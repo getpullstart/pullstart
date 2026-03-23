@@ -1,4 +1,5 @@
 import type { CapabilityVerdict } from '../capability/capability-types.js'
+import type { EvidenceContradiction, FactRecord, UnknownEvidence } from '../evidence/evidence-types.js'
 
 export type ExecutionMode = 'execute' | 'guide'
 
@@ -55,6 +56,10 @@ export interface RunOutcome {
   guidedStepId?: string
   events: ExecutionEvent[]
   caveats: string[]
+   factRefs?: FactRecord[]
+   contradictions?: EvidenceContradiction[]
+   unknownEvidence?: UnknownEvidence[]
+   runtimeEvidence: FactRecord[]
 }
 
 export interface RunBootstrapInput {
@@ -84,4 +89,5 @@ export interface ManagedStartAppResult {
   nextAction?: string
   logs: string[]
   details?: Record<string, unknown>
+  runtimeEvidence?: FactRecord[]
 }
