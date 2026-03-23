@@ -4,7 +4,7 @@ import { buildCapabilityVerdict } from '../../src/capability/build-capability-ve
 import { loadSetupSpec } from '../../src/contract/load-setup-spec.js'
 import type { MachineInspectionResult } from '../../src/inspect/machine-inspector.js'
 import type { BootstrapPlan } from '../../src/planner/plan-types.js'
-import type { SessionInspectionResult } from '../../src/capability/capability-types.js'
+import type { CapabilityFamily, SessionInspectionResult } from '../../src/capability/capability-types.js'
 
 const loaded = loadSetupSpec(
   new URL('../../contracts/setup.spec.example.yaml', import.meta.url).pathname
@@ -123,6 +123,20 @@ function createSession(overrides?: Partial<SessionInspectionResult>): SessionIns
 }
 
 describe('CAP-01/CAP-02 buildCapabilityVerdict', () => {
+  it('supports all typed CAP-02 verdict families', () => {
+    const families: CapabilityFamily[] = [
+      'ready',
+      'ready-with-manual-step',
+      'blocked-by-machine-prereq',
+      'blocked-by-repo-gap',
+      'blocked-by-external-access',
+      'unsafe-to-execute',
+      'unknown-requires-review'
+    ]
+
+    expect(families).toHaveLength(7)
+  })
+
   it('returns needs-user-action for missing required setup evidence', () => {
     const verdict = buildCapabilityVerdict(
       loaded.spec,
@@ -141,6 +155,7 @@ describe('CAP-01/CAP-02 buildCapabilityVerdict', () => {
     )
 
     expect(verdict.decision).toBe('needs-user-action')
+    expect(verdict.family).toBe('blocked-by-machine-prereq')
     expect(verdict.nextStepId).toBe('install')
     expect(verdict.requiredUserAction).toBeTruthy()
   })
@@ -157,6 +172,7 @@ describe('CAP-01/CAP-02 buildCapabilityVerdict', () => {
     )
 
     expect(verdict.decision).toBe('must-pause')
+    expect(verdict.family).toBe('unsafe-to-execute')
     expect(verdict.requiredUserAction).toContain('write access')
   })
 
@@ -169,6 +185,7 @@ describe('CAP-01/CAP-02 buildCapabilityVerdict', () => {
     )
 
     expect(verdict.decision).toBe('can-act')
+    expect(verdict.family).toBe('unknown-requires-review')
     expect(verdict.nextStepId).toBe('install')
     expect(verdict.unknownEvidence).toEqual(
       expect.arrayContaining([
@@ -290,5 +307,6 @@ describe('CAP-01/CAP-02 buildCapabilityVerdict', () => {
         })
       ])
     )
+    expect(verdict.family).toBe('blocked-by-machine-prereq')
   })
 })
