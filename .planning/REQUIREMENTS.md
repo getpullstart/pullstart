@@ -7,9 +7,9 @@
 
 ### Contract Model
 
-- [ ] **CNTR-01**: Pullstart uses `setup.spec.yaml` as the canonical onboarding contract surface for MVP.
-- [ ] **CNTR-02**: The contract can declare required tools, services, env expectations, ordered setup steps, and verification checks.
-- [ ] **CNTR-03**: The contract remains reviewable by humans and reliable for agent parsing.
+- [x] **CNTR-01**: Pullstart uses `setup.spec.yaml` as the canonical onboarding contract surface for MVP.
+- [x] **CNTR-02**: The contract can declare required tools, services, env expectations, ordered setup steps, and verification checks.
+- [x] **CNTR-03**: The contract remains reviewable by humans and reliable for agent parsing.
 
 ### Planning
 

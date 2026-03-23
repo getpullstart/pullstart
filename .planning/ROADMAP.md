@@ -31,8 +31,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Finalize the minimal `setup.spec.yaml` schema and contract rules for MVP.
-- [ ] 01-02: Define the proof repo fixture and verification contract in implementation terms.
+- [x] 01-01: Finalize the minimal `setup.spec.yaml` schema and contract rules for MVP.
+- [x] 01-02: Define the proof repo fixture and verification contract in implementation terms.
 - [ ] 01-03: Align public docs and planning docs around the same narrow MVP slice.
 
 ### Phase 2: Minimal Onboarding Planner
