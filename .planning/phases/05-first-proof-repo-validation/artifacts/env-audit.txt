@@ -1,0 +1,19 @@
+timestamp: 2026-03-23T13:39:57Z
+phase: 05-first-proof-repo-validation
+repo_target_url: file:///tmp/pullstart-phase5-proof-repo
+repo_target_commit: 4c87ba3f944c838f26ae152823fc254804d6bc9b
+proof_repo_path: /tmp/pullstart-phase5-proof-repo
+proof_service_tcp_target: 127.0.0.1:59305
+proof_health_target: http://127.0.0.1:59306/health
+
+node_version: v25.5.0
+pnpm_version: 10.7.0
+docker_version: Docker version 24.0.5, build ced0996
+
+postgres_reachability_probe:
+  method: tcp (service healthcheck target from setup.spec.yaml)
+  pre_run_status: reachable (seeded by local TCP stub for reproducible proof run)
+
+notes:
+  - Direct TS CLI shell execution is not available in this repository (CLI imports local .js module paths).
+  - Evidence runs use CLI main invocation with dependency injection, matching existing runtime-guidance tests.
