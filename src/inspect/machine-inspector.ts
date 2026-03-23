@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import dotenv from 'dotenv'
 
 import type { SetupSpec } from '../contract/setup-spec-types.js'
+import type { FactRecord } from '../evidence/evidence-types.js'
 import type { RepoInspectionResult } from './repo-inspector.js'
 import { getCommandVersion, satisfiesVersion, tcpReachable } from './probe-utils.js'
 
@@ -40,6 +41,7 @@ export interface MachineInspectionResult {
   envFiles: EnvFileInspectionResult[]
   envVars: EnvVarInspectionResult[]
   services: ServiceHealthInspectionResult[]
+  facts: FactRecord[]
   blockers: string[]
 }
 
@@ -152,12 +154,59 @@ export async function inspectMachine(
     }
   }
 
+  const facts: FactRecord[] = [
+    ...tools.map((tool) => ({
+      id: `fact:machine:tool:${tool.name}`,
+      source: 'observed-machine' as const,
+      subject: `tool.${tool.name}`,
+      state: tool.relevant ? (tool.satisfied ? 'satisfied' : 'missing') : ('unknown' as const),
+      summary: tool.relevant
+        ? tool.satisfied
+          ? `${tool.name} satisfies ${tool.expectedRange}`
+          : `${tool.name} does not satisfy ${tool.expectedRange}`
+        : `${tool.name} not required for selected path`,
+      affectsStepIds:
+        tool.name === 'docker'
+          ? ['start-postgres', 'migrate', 'start-app']
+          : ['install', 'migrate', 'start-app']
+    })),
+    ...envFiles.map((file) => ({
+      id: `fact:machine:env-file:${file.path}`,
+      source: 'observed-machine' as const,
+      subject: `env-file.${file.path}`,
+      state: file.exists ? ('satisfied' as const) : ('missing' as const),
+      summary: file.exists ? `${file.path} exists` : `${file.path} is missing`,
+      affectsStepIds: ['migrate', 'start-app']
+    })),
+    ...envVars.map((variable) => ({
+      id: `fact:machine:env-var:${variable.name}`,
+      source: 'observed-machine' as const,
+      subject: `env-var.${variable.name}`,
+      state: variable.present ? ('satisfied' as const) : ('missing' as const),
+      summary: variable.present
+        ? `${variable.name} present in ${variable.source}`
+        : `${variable.name} missing from ${variable.source}`,
+      affectsStepIds: ['migrate', 'start-app']
+    })),
+    ...services.map((service) => ({
+      id: `fact:machine:service:${service.serviceName}`,
+      source: 'observed-machine' as const,
+      subject: `service.${service.serviceName}.reachability`,
+      state: service.reachable ? ('satisfied' as const) : ('missing' as const),
+      summary: service.reachable
+        ? `${service.serviceName} reachable at ${service.target}`
+        : `${service.serviceName} unreachable at ${service.target}`,
+      affectsStepIds: ['migrate', 'start-app']
+    }))
+  ]
+
   return {
     repoRoot: absoluteRoot,
     tools,
     envFiles,
     envVars,
     services,
+    facts,
     blockers
   }
 }

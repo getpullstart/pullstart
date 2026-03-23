@@ -33,6 +33,7 @@ function repoInspection(composeViable: boolean): RepoInspectionResult {
     verificationTargets: loaded.spec.verify,
     presentEvidence: [],
     missingEvidence: [],
+    facts: [],
     scripts: {
       install: true,
       migrate: true,
@@ -85,6 +86,20 @@ describe('PLAN-02 inspectMachine', () => {
         expect.objectContaining({ name: 'docker', relevant: true, satisfied: true })
       ])
     )
+    expect(result.facts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'fact:machine:tool:node',
+          source: 'observed-machine',
+          state: 'satisfied'
+        }),
+        expect.objectContaining({
+          id: 'fact:machine:service:postgres',
+          source: 'observed-machine',
+          state: 'satisfied'
+        })
+      ])
+    )
   })
 
   it('reports missing env files and vars before execution is considered safe', async () => {
@@ -106,6 +121,20 @@ describe('PLAN-02 inspectMachine', () => {
     expect(result.tools).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: 'docker', relevant: false, satisfied: true })
+      ])
+    )
+    expect(result.facts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'fact:machine:env-file:.env',
+          source: 'observed-machine',
+          state: 'missing'
+        }),
+        expect.objectContaining({
+          id: 'fact:machine:tool:docker',
+          source: 'observed-machine',
+          state: 'unknown'
+        })
       ])
     )
   })
@@ -132,6 +161,20 @@ describe('PLAN-02 inspectMachine', () => {
           serviceName: 'postgres',
           target: 'localhost:5432',
           reachable: false
+        })
+      ])
+    )
+    expect(result.facts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'fact:machine:tool:node',
+          source: 'observed-machine',
+          state: 'missing'
+        }),
+        expect.objectContaining({
+          id: 'fact:machine:service:postgres',
+          source: 'observed-machine',
+          state: 'missing'
         })
       ])
     )

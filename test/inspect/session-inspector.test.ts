@@ -1,8 +1,19 @@
 import { describe, expect, it } from 'vitest'
 
+import { FACT_SOURCES } from '../../src/evidence/evidence-types.js'
 import { inspectSession } from '../../src/inspect/session-inspector.js'
 
 describe('CAP-02 inspectSession', () => {
+  it('exposes the canonical evidence source taxonomy for deterministic provenance', () => {
+    expect(FACT_SOURCES).toEqual([
+      'declared',
+      'observed-repo',
+      'observed-machine',
+      'runtime-observed',
+      'inferred'
+    ])
+  })
+
   it('reports writable repo root without mutating repository state', () => {
     const result = inspectSession('/tmp/proof-repo', {
       isWritablePath: () => true
@@ -31,5 +42,29 @@ describe('CAP-02 inspectSession', () => {
     expect(result.unknowns).toContain('network')
     expect(result.blockers).not.toContain('auth')
     expect(result.blockers).not.toContain('network')
+  })
+
+  it('exposes unresolved unknown evidence as first-class typed facts', () => {
+    const result = inspectSession('/tmp/proof-repo', {
+      isWritablePath: () => true
+    })
+
+    expect(result.unknownEvidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'unknown:auth:registry',
+          source: 'inferred',
+          scope: 'auth',
+          state: 'unresolved-until-execution'
+        }),
+        expect.objectContaining({
+          id: 'unknown:network:registry',
+          source: 'inferred',
+          scope: 'network',
+          state: 'unresolved-until-execution'
+        })
+      ])
+    )
+    expect(result.blockers).toEqual([])
   })
 })

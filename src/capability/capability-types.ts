@@ -1,3 +1,5 @@
+import type { EvidenceContradiction, FactRecord, UnknownEvidence } from '../evidence/evidence-types.js'
+
 export type CapabilityDecision = 'can-act' | 'needs-user-action' | 'must-pause'
 
 export type CapabilityState = 'ready' | 'blocked' | 'unknown' | 'not-needed'
@@ -17,8 +19,11 @@ export interface CapabilityCheck {
   state: CapabilityState
   summary: string
   evidence: string[]
+  factRefs?: string[]
+  contradictionRefs?: string[]
   affectsStepIds: string[]
   userAction?: string
+  unknownState?: 'unresolved-until-execution'
 }
 
 export interface CapabilityVerdict {
@@ -27,6 +32,9 @@ export interface CapabilityVerdict {
   checks: CapabilityCheck[]
   requiredUserAction?: string
   caveats: string[]
+  factRefs?: FactRecord[]
+  contradictions?: EvidenceContradiction[]
+  unknownEvidence?: UnknownEvidence[]
 }
 
 export interface SessionInspectionResult {
@@ -35,5 +43,7 @@ export interface SessionInspectionResult {
     repoRootWritable: boolean
   }
   unknowns: Array<'auth' | 'network'>
+  unknownEvidence: UnknownEvidence[]
+  facts: FactRecord[]
   blockers: string[]
 }

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
+import type { FactRecord } from '../evidence/evidence-types.js'
 import type {
   ServiceOption,
   SetupSpec,
@@ -22,6 +23,7 @@ export interface RepoInspectionResult {
   verificationTargets: VerificationStep[]
   presentEvidence: string[]
   missingEvidence: string[]
+  facts: FactRecord[]
   scripts: {
     install: boolean
     migrate: boolean
@@ -154,6 +156,91 @@ export function inspectRepo(spec: SetupSpec, repoRoot: string): RepoInspectionRe
     })
   )
 
+  const facts: FactRecord[] = [
+    {
+      id: 'fact:repo:package-json',
+      source: 'observed-repo',
+      subject: 'artifact.package-json',
+      state: packageJsonPresent ? 'satisfied' : 'missing',
+      summary: packageJsonPresent ? 'package.json exists' : 'package.json missing',
+      affectsStepIds: ['install', 'migrate', 'start-app']
+    },
+    {
+      id: 'fact:repo:env-example',
+      source: 'observed-repo',
+      subject: 'artifact.env-example',
+      state: envExamplePresent ? 'satisfied' : 'missing',
+      summary: envExamplePresent ? 'env example exists' : 'env example missing',
+      affectsStepIds: ['migrate', 'start-app']
+    },
+    {
+      id: 'fact:repo:install-step-declared',
+      source: 'declared',
+      subject: 'step.install',
+      state: scriptEvidence.install ? 'satisfied' : 'missing',
+      summary: scriptEvidence.install ? 'install step declared and script resolvable' : 'install step unresolved',
+      affectsStepIds: ['install']
+    },
+    {
+      id: 'fact:repo:migration-step-declared',
+      source: 'declared',
+      subject: 'step.migrate',
+      state: scriptEvidence.migrate ? 'satisfied' : 'missing',
+      summary:
+        scriptEvidence.migrate ? 'migration step declared and script resolvable' : 'migration step unresolved',
+      affectsStepIds: ['migrate']
+    },
+    {
+      id: 'fact:repo:start-step-declared',
+      source: 'declared',
+      subject: 'step.start-app',
+      state: scriptEvidence.start ? 'satisfied' : 'missing',
+      summary: scriptEvidence.start ? 'start step declared and script resolvable' : 'start step unresolved',
+      affectsStepIds: ['start-app']
+    },
+    {
+      id: 'fact:repo:verify-target',
+      source: 'declared',
+      subject: 'verify.target',
+      state: spec.verify.length > 0 ? 'satisfied' : 'missing',
+      summary: spec.verify.length > 0 ? 'verification target declared' : 'verification target missing',
+      affectsStepIds: ['start-app']
+    },
+    {
+      id: 'fact:repo:compose-hint-observed',
+      source: 'observed-repo',
+      subject: 'artifact.compose-hint',
+      state: composeHintPresent ? 'satisfied' : 'missing',
+      summary: composeHintPresent ? 'compose hint observed in repo' : 'compose hint not observed',
+      affectsStepIds: ['start-postgres', 'migrate', 'start-app']
+    },
+    ...serviceOptions.flatMap((option) => {
+      const inferred: FactRecord = {
+        id: `fact:repo:service-option:${option.optionId}:viability`,
+        source: option.type === 'docker-compose' ? 'inferred' : 'declared',
+        subject: `service-option.${option.serviceName}.${option.optionId}.viability`,
+        state: option.viable ? 'satisfied' : 'missing',
+        summary: option.reason,
+        affectsStepIds: ['start-postgres', 'migrate', 'start-app']
+      }
+
+      if (option.type !== 'docker-compose') {
+        return [inferred]
+      }
+
+      const declared: FactRecord = {
+        id: `fact:repo:service-option:${option.optionId}:declared`,
+        source: 'declared',
+        subject: `service-option.${option.serviceName}.${option.optionId}.declared`,
+        state: 'satisfied',
+        summary: `${option.optionId} declared as supported path`,
+        affectsStepIds: ['start-postgres', 'migrate', 'start-app']
+      }
+
+      return [declared, inferred]
+    })
+  ]
+
   return {
     repoRoot: absoluteRoot,
     packageJsonPresent,
@@ -161,6 +248,7 @@ export function inspectRepo(spec: SetupSpec, repoRoot: string): RepoInspectionRe
     verificationTargets: spec.verify,
     presentEvidence,
     missingEvidence,
+    facts,
     scripts: scriptEvidence,
     serviceOptions
   }

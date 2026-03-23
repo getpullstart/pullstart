@@ -105,6 +105,25 @@ describe('PLAN-01 inspectRepo', () => {
         })
       ])
     )
+    expect(result.facts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'fact:repo:package-json',
+          source: 'observed-repo',
+          state: 'satisfied'
+        }),
+        expect.objectContaining({
+          id: 'fact:repo:service-option:docker-compose:declared',
+          source: 'declared',
+          state: 'satisfied'
+        }),
+        expect.objectContaining({
+          id: 'fact:repo:service-option:docker-compose:viability',
+          source: 'inferred',
+          state: 'satisfied'
+        })
+      ])
+    )
   })
 
   it('reports missing repo evidence instead of guessing around it', () => {
@@ -117,6 +136,20 @@ describe('PLAN-01 inspectRepo', () => {
 
     expect(result.missingEvidence).toEqual(
       expect.arrayContaining(['env-example', 'migration-step', 'start-step'])
+    )
+    expect(result.facts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'fact:repo:migration-step-declared',
+          source: 'declared',
+          state: 'missing'
+        }),
+        expect.objectContaining({
+          id: 'fact:repo:start-step-declared',
+          source: 'declared',
+          state: 'missing'
+        })
+      ])
     )
   })
 
@@ -133,6 +166,20 @@ describe('PLAN-01 inspectRepo', () => {
         expect.objectContaining({
           optionId: 'local-instance',
           viable: true
+        })
+      ])
+    )
+    expect(result.facts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'fact:repo:compose-hint-observed',
+          source: 'observed-repo',
+          state: 'missing'
+        }),
+        expect.objectContaining({
+          id: 'fact:repo:service-option:docker-compose:viability',
+          source: 'inferred',
+          state: 'missing'
         })
       ])
     )
