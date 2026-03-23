@@ -90,7 +90,7 @@ Derive shortest safe path from evidence + verdict + policy, with agent review fo
 
 Planner owns ordered candidates, not truth authority; every step has deterministic provenance.
 
-Policy gate owns execution permission; planner/agent/contract do not self-authorize execution.
+Policy gate owns execution permission; planner/agent/contract do not grant execution permission on their own.
 
 ## Phase 5 — Policy-gated execution
 

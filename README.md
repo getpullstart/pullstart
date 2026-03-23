@@ -25,7 +25,7 @@ Pullstart V1 follows a bounded evidence-first flow:
 5. Run only policy-allowed steps.
 6. Verify one explicit readiness target.
 
-The goal is not magical autonomy. The goal is one honest onboarding outcome faster.
+The goal is one honest onboarding outcome faster.
 
 ## MVP scope
 
