@@ -1,0 +1,55 @@
+{
+  "blockers": [],
+  "selectedServiceOptions": [
+    {
+      "serviceName": "postgres",
+      "optionId": "local-instance",
+      "reason": "existing local service is already reachable"
+    }
+  ],
+  "satisfiedFacts": [
+    "repo:package-json",
+    "repo:env-example",
+    "repo:install-step",
+    "repo:migration-step",
+    "repo:start-step",
+    "repo:verify-target",
+    "tool:node",
+    "tool:pnpm",
+    "env-file:.env",
+    "env-var:DATABASE_URL",
+    "env-var:PORT",
+    "service:postgres"
+  ],
+  "steps": [
+    {
+      "id": "install",
+      "name": "Install dependencies",
+      "run": "pnpm install",
+      "status": "ready",
+      "dependsOn": [],
+      "reason": "first actionable step in the shortest safe path"
+    },
+    {
+      "id": "migrate",
+      "name": "Run database migrations",
+      "run": "pnpm db:migrate",
+      "status": "pending",
+      "dependsOn": [
+        "install"
+      ],
+      "reason": "wait for install to complete first"
+    },
+    {
+      "id": "start-app",
+      "name": "Start the API",
+      "run": "pnpm dev",
+      "status": "pending",
+      "dependsOn": [
+        "install",
+        "migrate"
+      ],
+      "reason": "wait for migrate to complete first"
+    }
+  ]
+}

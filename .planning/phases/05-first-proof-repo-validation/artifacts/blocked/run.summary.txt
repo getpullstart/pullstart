@@ -1,0 +1,97 @@
+{
+  "status": "blocked",
+  "reason": "verification target was already healthy before start-app; state is ambiguous",
+  "nextAction": "Stop any existing process on the verification target and rerun to prove this repository startup path.",
+  "executedStepIds": [
+    "install",
+    "migrate"
+  ],
+  "guidedStepId": "start-app",
+  "events": [
+    {
+      "type": "step-start",
+      "at": "2026-03-23T13:42:05.000Z",
+      "stepId": "install",
+      "message": "Running install",
+      "details": {
+        "run": "pnpm install"
+      }
+    },
+    {
+      "type": "step-success",
+      "at": "2026-03-23T13:42:05.000Z",
+      "stepId": "install",
+      "message": "Step install completed",
+      "details": {
+        "exitCode": 0,
+        "durationMs": 1
+      }
+    },
+    {
+      "type": "step-start",
+      "at": "2026-03-23T13:42:05.000Z",
+      "stepId": "migrate",
+      "message": "Running migrate",
+      "details": {
+        "run": "pnpm db:migrate"
+      }
+    },
+    {
+      "type": "step-success",
+      "at": "2026-03-23T13:42:05.000Z",
+      "stepId": "migrate",
+      "message": "Step migrate completed",
+      "details": {
+        "exitCode": 0,
+        "durationMs": 1
+      }
+    },
+    {
+      "type": "step-guided",
+      "at": "2026-03-23T13:42:05.000Z",
+      "stepId": "start-app",
+      "message": "start-app requires managed execution and verification handling",
+      "details": {
+        "nextAction": "Run managed start-app verification or guide the user through this step."
+      }
+    },
+    {
+      "type": "verification-failed",
+      "at": "2026-03-23T13:42:05.000Z",
+      "stepId": "start-app",
+      "message": "verification target was already healthy before start-app; state is ambiguous",
+      "details": {
+        "logs": [],
+        "attempts": 1,
+        "lastStatus": 200,
+        "nextAction": "Stop any existing process on the verification target and rerun to prove this repository startup path."
+      }
+    }
+  ],
+  "caveats": [
+    "Registry authentication is not provable before attempting install",
+    "Network reachability for package install is unknown before execution"
+  ]
+}
+
+Pullstart run outcome
+
+Status: blocked
+Reason: verification target was already healthy before start-app; state is ambiguous
+Category: verification
+Next action: Stop any existing process on the verification target and rerun to prove this repository startup path.
+
+Executed steps: install, migrate
+Guided step: start-app
+
+Caveats:
+- Unknown: Registry authentication is not provable before attempting install
+- Unknown: Network reachability for package install is unknown before execution
+
+Events:
+- step-start(install): Running install
+- step-success(install): Step install completed
+- step-start(migrate): Running migrate
+- step-success(migrate): Step migrate completed
+- step-guided(start-app): start-app requires managed execution and verification handling
+- verification-failed(start-app): verification target was already healthy before start-app; state is ambiguous

@@ -1,0 +1,148 @@
+{
+  "decision": "can-act",
+  "nextStepId": "install",
+  "checks": [
+    {
+      "id": "tool:node",
+      "domain": "toolchain",
+      "state": "ready",
+      "summary": "node satisfies 20.x",
+      "evidence": [
+        "v25.5.0"
+      ],
+      "affectsStepIds": [
+        "install",
+        "migrate",
+        "start-app"
+      ]
+    },
+    {
+      "id": "tool:pnpm",
+      "domain": "toolchain",
+      "state": "ready",
+      "summary": "pnpm satisfies 9.x",
+      "evidence": [
+        "10.7.0"
+      ],
+      "affectsStepIds": [
+        "install",
+        "migrate",
+        "start-app"
+      ]
+    },
+    {
+      "id": "env-file:.env",
+      "domain": "env",
+      "state": "ready",
+      "summary": ".env exists",
+      "evidence": [
+        ".env.example"
+      ],
+      "affectsStepIds": [
+        "migrate",
+        "start-app"
+      ]
+    },
+    {
+      "id": "env-var:DATABASE_URL",
+      "domain": "env",
+      "state": "ready",
+      "summary": "DATABASE_URL is present",
+      "evidence": [
+        ".env.example"
+      ],
+      "affectsStepIds": [
+        "migrate",
+        "start-app"
+      ]
+    },
+    {
+      "id": "env-var:PORT",
+      "domain": "env",
+      "state": "ready",
+      "summary": "PORT is present",
+      "evidence": [
+        ".env.example"
+      ],
+      "affectsStepIds": [
+        "migrate",
+        "start-app"
+      ]
+    },
+    {
+      "id": "service:postgres",
+      "domain": "service",
+      "state": "ready",
+      "summary": "postgres is reachable at 127.0.0.1:59305",
+      "evidence": [
+        "127.0.0.1:59305"
+      ],
+      "affectsStepIds": [
+        "migrate",
+        "start-app"
+      ]
+    },
+    {
+      "id": "permissions:repo-root",
+      "domain": "permissions",
+      "state": "ready",
+      "summary": "Repo root is writable in this session",
+      "evidence": [
+        "/tmp/pullstart-phase5-proof-repo"
+      ],
+      "affectsStepIds": [
+        "install",
+        "migrate",
+        "start-app"
+      ]
+    },
+    {
+      "id": "auth:registry",
+      "domain": "auth",
+      "state": "unknown",
+      "summary": "Registry authentication is not provable before attempting install",
+      "evidence": [
+        "pre-execution state"
+      ],
+      "affectsStepIds": [
+        "install"
+      ]
+    },
+    {
+      "id": "network:registry",
+      "domain": "network",
+      "state": "unknown",
+      "summary": "Network reachability for package install is unknown before execution",
+      "evidence": [
+        "pre-execution state"
+      ],
+      "affectsStepIds": [
+        "install"
+      ]
+    }
+  ],
+  "caveats": [
+    "Registry authentication is not provable before attempting install",
+    "Network reachability for package install is unknown before execution"
+  ]
+}
+
+Pullstart capability verdict
+
+Decision: can-act
+Next step: install
+
+Checks:
+- [ready] toolchain :: node satisfies 20.x
+- [ready] toolchain :: pnpm satisfies 9.x
+- [ready] env :: .env exists
+- [ready] env :: DATABASE_URL is present
+- [ready] env :: PORT is present
+- [ready] service :: postgres is reachable at 127.0.0.1:59305
+- [ready] permissions :: Repo root is writable in this session
+- [unknown] auth :: Registry authentication is not provable before attempting install
+- [unknown] network :: Network reachability for package install is unknown before execution
+
+Caveats:
+- Unknown: Registry authentication is not provable before attempting install
+- Unknown: Network reachability for package install is unknown before execution

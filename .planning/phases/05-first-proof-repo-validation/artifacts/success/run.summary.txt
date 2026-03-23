@@ -1,0 +1,95 @@
+{
+  "status": "success",
+  "reason": "verification target responded with expected status while app was managed",
+  "executedStepIds": [
+    "install",
+    "migrate"
+  ],
+  "guidedStepId": "start-app",
+  "events": [
+    {
+      "type": "step-start",
+      "at": "2026-03-23T13:41:50.000Z",
+      "stepId": "install",
+      "message": "Running install",
+      "details": {
+        "run": "pnpm install"
+      }
+    },
+    {
+      "type": "step-success",
+      "at": "2026-03-23T13:41:50.000Z",
+      "stepId": "install",
+      "message": "Step install completed",
+      "details": {
+        "exitCode": 0,
+        "durationMs": 1
+      }
+    },
+    {
+      "type": "step-start",
+      "at": "2026-03-23T13:41:50.000Z",
+      "stepId": "migrate",
+      "message": "Running migrate",
+      "details": {
+        "run": "pnpm db:migrate"
+      }
+    },
+    {
+      "type": "step-success",
+      "at": "2026-03-23T13:41:50.000Z",
+      "stepId": "migrate",
+      "message": "Step migrate completed",
+      "details": {
+        "exitCode": 0,
+        "durationMs": 1
+      }
+    },
+    {
+      "type": "step-guided",
+      "at": "2026-03-23T13:41:50.000Z",
+      "stepId": "start-app",
+      "message": "start-app requires managed execution and verification handling",
+      "details": {
+        "nextAction": "Run managed start-app verification or guide the user through this step."
+      }
+    },
+    {
+      "type": "verification-success",
+      "at": "2026-03-23T13:41:50.000Z",
+      "stepId": "start-app",
+      "message": "verification target responded with expected status while app was managed",
+      "details": {
+        "logs": [],
+        "attempts": 1,
+        "durationMs": 100,
+        "verificationTarget": "http://127.0.0.1:59306/health",
+        "expectStatus": 200
+      }
+    }
+  ],
+  "caveats": [
+    "Registry authentication is not provable before attempting install",
+    "Network reachability for package install is unknown before execution"
+  ]
+}
+
+Pullstart run outcome
+
+Status: success
+Reason: verification target responded with expected status while app was managed
+
+Executed steps: install, migrate
+Guided step: start-app
+
+Caveats:
+- Unknown: Registry authentication is not provable before attempting install
+- Unknown: Network reachability for package install is unknown before execution
+
+Events:
+- step-start(install): Running install
+- step-success(install): Step install completed
+- step-start(migrate): Running migrate
+- step-success(migrate): Step migrate completed
+- step-guided(start-app): start-app requires managed execution and verification handling
+- verification-success(start-app): verification target responded with expected status while app was managed
