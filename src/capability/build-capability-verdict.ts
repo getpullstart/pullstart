@@ -156,6 +156,20 @@ function withStructuredContext(
   }
 }
 
+function isExternalAccessBlockedCheck(check: CapabilityCheck) {
+  if (check.domain === 'auth' || check.domain === 'network') {
+    return true
+  }
+
+  const normalizedId = check.id.toLowerCase()
+  const normalizedSummary = check.summary.toLowerCase()
+  const externalTokens = ['auth', 'network', 'registry', 'vpn', 'permission denied', 'private dependency']
+
+  return externalTokens.some(
+    (token) => normalizedId.includes(token) || normalizedSummary.includes(token)
+  )
+}
+
 function deriveFamily(options: {
   decision: CapabilityVerdict['decision']
   nextStepId: string | null
@@ -167,7 +181,7 @@ function deriveFamily(options: {
 
   const blocked = options.checks.find((check) => check.state === 'blocked')
   if (blocked) {
-    if (blocked.domain === 'auth' || blocked.domain === 'network') {
+    if (isExternalAccessBlockedCheck(blocked)) {
       return 'blocked-by-external-access'
     }
 
