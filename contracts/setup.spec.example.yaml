@@ -1,0 +1,49 @@
+version: 0
+
+repo:
+  name: sample-node-api
+  purpose: Local onboarding contract for a Node.js API with PostgreSQL.
+
+prerequisites:
+  tools:
+    - name: node
+      version: "20.x"
+    - name: pnpm
+      version: "9.x"
+    - name: docker
+      version: "24+"
+      optional: true
+  files:
+    - path: .env
+      derive_from: .env.example
+
+services:
+  - name: postgres
+    mode: docker-compose
+    required: true
+    healthcheck:
+      type: tcp
+      target: localhost:5432
+
+steps:
+  - id: install
+    run: pnpm install
+    required: true
+  - id: start-postgres
+    run: docker compose up -d postgres
+    required: true
+  - id: migrate
+    run: pnpm db:migrate
+    required: true
+  - id: start-app
+    run: pnpm dev
+    required: true
+
+verify:
+  - id: api-health
+    type: http
+    target: http://localhost:3000/health
+    expect_status: 200
+
+fallback_notes:
+  - If Docker is unavailable, connect to an already running local PostgreSQL instance.
