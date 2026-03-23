@@ -35,7 +35,7 @@ They are intentionally scoped to one onboarding contract surface, one proof repo
 ### Proof and scope honesty
 
 - **PROOF-01**: MVP proof is one Node.js API + PostgreSQL proof repo before broader portability claims.
-- **PROOF-02**: Public docs and planning artifacts clearly separate the MVP contract/proof slice from deferred platform ideas.
+- **PROOF-02**: Public docs and planning artifacts clearly separate the MVP contract and proof slice from deferred platform ideas.
 
 ## Constraints
 

@@ -57,9 +57,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CNTR-01 | Phase 1 | In Progress |
-| CNTR-02 | Phase 1 | In Progress |
-| CNTR-03 | Phase 1 | In Progress |
+| CNTR-01 | Phase 1 | Complete |
+| CNTR-02 | Phase 1 | Complete |
+| CNTR-03 | Phase 1 | Complete |
 | PLAN-01 | Phase 2 | Pending |
 | PLAN-02 | Phase 2 | Pending |
 | PLAN-03 | Phase 2 | Pending |
@@ -79,4 +79,4 @@
 
 ---
 *Requirements defined: 2026-03-23*
-*Last updated: 2026-03-23 after GSD bootstrap conversion*
+*Last updated: 2026-03-23 after Phase 1 contract/proof alignment*

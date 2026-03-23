@@ -35,7 +35,7 @@ The repo clearly states what Pullstart is, what it is not, what contract it read
 
 ### Purpose
 
-Consume the frozen contract and proof checklist, inspect repo and machine state, and turn that evidence into an ordered bootstrap plan.
+Consume the frozen contract and proof checklist, inspect repo and machine state, and turn that evidence into an ordered bootstrap plan without redefining the contract or widening the proof claim.
 
 ### Scope
 
@@ -123,7 +123,7 @@ These ideas stay outside the initial milestone:
 The order is intentional:
 
 1. Lock the contract and product story first.
-2. Build planning before execution so actions stay explainable.
+2. Build planning against the frozen contract and proof checklist so actions stay explainable.
 3. Build execution before richer failure taxonomy so behavior is grounded in real steps.
 4. Test on one real repo before broadening portability or architecture.
 
