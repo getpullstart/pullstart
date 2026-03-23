@@ -22,6 +22,12 @@ This is not pure contract-first, pure discovery-first, or docs-first. Discovery 
 
 Get a real repo from clone to working local setup faster and with fewer dead ends than the repo's existing onboarding path.
 
+## Current State
+
+- Milestone `v1.0` is shipped and archived in `.planning/milestones/`.
+- MVP proof boundary is validated on one locked Node.js API + PostgreSQL proof target.
+- Active planning now shifts to defining v1.1 requirements and roadmap.
+
 ## Requirements
 
 ### Validated
@@ -35,8 +41,8 @@ Get a real repo from clone to working local setup faster and with fewer dead end
 
 ### Active
 
-- [ ] Complete milestone closeout and archive planning artifacts for v1.0.
-- [ ] Prioritize and promote selected backlog items for next milestone scope.
+- [ ] Define v1.1 requirements and roadmap (`/gsd-new-milestone`).
+- [ ] Evaluate backlog item `999.2` for promotion into active milestone scope.
 
 ### Out of Scope
 
@@ -106,4 +112,4 @@ Get a real repo from clone to working local setup faster and with fewer dead end
 - Pre-execution registry auth/network checks remain unknown until runtime commands execute.
 
 ---
-*Last updated: 2026-03-23 after Phase 5 proof validation update*
+*Last updated: 2026-03-23 after v1.0 milestone archive*
