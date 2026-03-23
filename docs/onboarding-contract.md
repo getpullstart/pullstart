@@ -2,39 +2,43 @@
 
 ## Canonical surface
 
-Pullstart MVP uses `setup.spec.yaml` as the canonical onboarding contract surface.
+`setup.spec.yaml` is the only canonical onboarding contract surface in Pullstart MVP.
 
-## Why not markdown alone
+The validation contract for that file lives in `contracts/setup.spec.schema.json`, which defines the strict JSON Schema shape Phase 2 is allowed to parse.
 
-Markdown onboarding docs are helpful, but they break down as the primary agent contract because they are:
+## Supported MVP sections
 
-- inconsistent across repos
-- hard to parse reliably
-- easy to let drift from actual setup behavior
+Phase 1 supports one deliberately small section set:
 
-Pullstart still reads human docs as supporting evidence, but it centers setup intent in one structured contract.
+- `version`
+- `repo`
+- `tools`
+- `services`
+- `env`
+- `steps`
+- `verify`
 
-## What `setup.spec.yaml` should express
+These sections are enough to describe the first proof scenario: a Node.js API repo with PostgreSQL, `.env.example`, ordered bootstrap steps, and one health verification path.
 
-The first schema should stay small. It only needs to cover the MVP proof scenario well.
+## Why the contract stays narrow
 
-Core sections:
+The MVP contract is meant to be reviewable by humans and reliable for strict parsing. That means the spec declares setup intent in a small declarative shape instead of spreading required behavior across prose or hidden fallback notes.
 
-- repo metadata
-- tool prerequisites
-- services
-- environment expectations
-- ordered setup steps
-- verification
-- fallback notes
+If a detail is required to get the repo running, it belongs in one of the supported sections above. Supporting docs can explain context, but they do not redefine the contract.
 
-## Supporting files
+## What supporting docs still do
 
-These files may exist, but they are secondary in MVP:
+Files like `README.md`, `ONBOARDING.md`, and `AGENTS.md` still matter. They give background, troubleshooting context, and product framing that help developers understand the repo.
 
-- `README.md`
-- `ONBOARDING.md`
-- `AGENTS.md`
-- repo-specific runbooks
+In MVP they are secondary sources, not ignored sources. Pullstart can use them as explanation, but `setup.spec.yaml` remains the authoritative declaration of onboarding intent.
 
-They explain, contextualize, or elaborate. They do not replace `setup.spec.yaml` as source of truth.
+## Explicit Phase 1 exclusions
+
+Phase 1 does not broaden the contract into a workflow language or portability promise. The current boundary intentionally excludes:
+
+- planner logic or branching rules
+- executor mechanics and runtime control flow
+- blocker taxonomy or recovery systems
+- broad portability claims beyond the first Node.js plus PostgreSQL proof slice
+
+Keeping these out of the contract makes the next implementation phases smaller and easier to verify.
