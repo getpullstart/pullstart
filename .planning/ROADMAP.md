@@ -23,7 +23,7 @@
 
 Plans:
 - [x] 01-01-PLAN.md — Lock contract-authority and evidence-provenance framing across requirements/project surfaces
-- [ ] 01-02-PLAN.md — Realign capability verdict and policy-gate ownership language in roadmap/README surfaces
+- [x] 01-02-PLAN.md — Realign capability verdict and policy-gate ownership language in roadmap/README surfaces
 - [ ] 01-03-PLAN.md — Finalize verification-boundary criteria and phase roadmap bookkeeping for execution
 
 ### Next phases (queued, not planned)
