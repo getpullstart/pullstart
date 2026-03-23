@@ -5,3 +5,4 @@ dist/
 .env.local
 .venv/
 .pytest_cache/
+.planning/
