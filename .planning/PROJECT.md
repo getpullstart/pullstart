@@ -4,6 +4,8 @@
 
 Pullstart is a repo-aware onboarding agent for developers who need to get a cloned repository running locally without decoding scattered setup lore. It reads a declared setup contract, checks machine and repo state, plans the shortest safe bootstrap path, executes or guides the key setup steps, and verifies whether the repo is actually runnable enough to continue.
 
+For execution planning, Phase 1 stops at the frozen contract, proof repo, and documentation boundary. Planner and executor behavior begins in later phases against that already-defined surface.
+
 ## Core Value
 
 Get a real repo from clone to working local setup faster and with fewer dead ends than the repo's existing onboarding path.
@@ -42,6 +44,7 @@ Get a real repo from clone to working local setup faster and with fewer dead end
 - **Contract**: `setup.spec.yaml` is the canonical onboarding contract — supporting docs do not replace it.
 - **Execution**: The next work should proceed through GSD phases, plans, summaries, and verification artifacts.
 - **Proof**: Success is measured on one credible proof repo before portability claims expand.
+- **Phase boundary**: Phase 1 delivers contract and proof readiness, not planner or executor code.
 
 ## Key Decisions
 

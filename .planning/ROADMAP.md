@@ -13,7 +13,7 @@ Pullstart reaches MVP by proving one contract-driven onboarding flow on one cred
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Contract Model And MVP Slice** - Lock the onboarding contract, proof target, and execution boundaries in an implementation-ready form.
-- [ ] **Phase 2: Minimal Onboarding Planner** - Turn contract plus machine and repo inspection into a safe ordered bootstrap plan.
+- [ ] **Phase 2: Minimal Onboarding Planner** - Consume the frozen contract and proof checklist to produce a safe ordered bootstrap plan.
 - [ ] **Phase 3: Minimal Executor And Verifier** - Run or guide the setup path and verify the repo is runnable enough.
 - [ ] **Phase 4: Failure Classification** - Normalize the most common onboarding blockers into clear actionable output.
 - [ ] **Phase 5: First Proof Repo Validation** - Test the MVP against one real repo and trim abstractions that do not survive contact.
@@ -36,13 +36,14 @@ Plans:
 - [ ] 01-03: Align public docs and planning docs around the same narrow MVP slice.
 
 ### Phase 2: Minimal Onboarding Planner
-**Goal**: Build the planner that reads the contract, inspects repo and machine state, and produces a shortest safe bootstrap plan.
+**Goal**: Build the planner that reads the frozen contract, consumes the proof-repo checklist, inspects repo and machine state, and produces a shortest safe bootstrap plan.
 **Depends on**: Phase 1
 **Requirements**: [PLAN-01, PLAN-02, PLAN-03]
 **Success Criteria** (what must be TRUE):
   1. Pullstart can parse the MVP contract shape needed by the proof repo.
   2. Pullstart can detect missing prerequisites and setup gaps before execution.
   3. Pullstart outputs an ordered plan with blockers and dependencies clearly identified.
+  4. Phase 2 does not redefine the contract or broaden the proof repo boundary set in Phase 1.
 **Plans**: 3 plans
 
 Plans:
