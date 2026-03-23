@@ -31,7 +31,7 @@ The initial product promise is simple:
 - MVP source of truth: `setup.spec.yaml`, with docs and architecture notes staying secondary
 - Phase boundary: Phase 1 freezes the contract and proof slice; Phase 2 consumes that boundary to build the planner
 - Why now: more teams are using agents, but repo setup is still fragmented across README notes, shell scripts, and implicit expectations
-- Why narrower than adjacent ideas: Pullstart is not trying to run all software work, manage memory across projects, or become an agent platform; it is focused on one painful transition point from clone to working local setup
+- Why narrower than adjacent ideas: Pullstart is not trying to cover every developer workflow or become a broad platform; it is focused on one painful transition point from clone to working local setup
 
 ## Falsification check
 
@@ -58,7 +58,7 @@ The initial product promise is simple:
 
 ## Canonical onboarding contract surface
 
-Pullstart MVP chooses `setup.spec.yaml` as the canonical onboarding contract surface.
+Pullstart MVP currently uses `setup.spec.yaml` as the onboarding contract candidate.
 
 The current Phase 1 contract boundary is:
 
@@ -144,8 +144,8 @@ The implementation-facing checklist for that proof repo is now explicit as well,
 
 Pullstart MVP is not:
 
-- a generic agent operating system
-- a second-brain or project memory platform
+- a broad developer platform
+- a second-brain style memory product
 - a cross-repo consensus engine
 - a runtime substrate selector
 - a plugin platform

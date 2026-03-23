@@ -19,9 +19,9 @@ They only matter after Pullstart proves that contract-driven onboarding is usefu
 
 Even if related ideas become interesting later, Pullstart should not start life as:
 
-- a generic agent operating system
+- a broad platform for every developer workflow
 - a broad workflow orchestration product
-- a project memory platform
+- a project memory product
 - a developer control plane
 
 Those are adjacent spaces, not the first product.

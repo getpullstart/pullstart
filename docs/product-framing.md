@@ -28,9 +28,9 @@ Pullstart is:
 
 Pullstart is not:
 
-- an agent OS
+- a broad platform for every developer workflow
 - a workflow platform
-- a memory operating layer
+- a memory product
 - a generic code agent replacement
 
 ## Current strategic bet

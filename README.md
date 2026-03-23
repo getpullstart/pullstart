@@ -1,85 +1,80 @@
 # Pullstart
 
-Pullstart is a repo-aware onboarding product being built to get cloned projects running faster.
+Pullstart helps developers get a cloned repo into one verified runnable state with less guessing.
 
-Phase 1 freezes the contract and proof boundary for MVP. That means the repo now has one canonical onboarding contract, one proof-repo checklist, and one narrow success claim for the first implementation cycle. Phase 2 starts building the planner against that already-defined surface.
-
-## The wedge
-
-Pullstart starts with one narrow promise:
-
-**Clone a repo. Let the agent get it running.**
-
-This is not a generic agent operating system, workflow platform, or memory layer. Version 1 is about onboarding and setup only.
+Version 1 stays focused on onboarding. It reads onboarding intent, checks repo and machine reality, chooses the safest next steps, runs or guides the setup flow, and proves when the repo is actually ready.
 
 ## Who it is for
 
-Pullstart is for developers joining a repo that already has some setup complexity:
+Pullstart is for developers who:
 
-- a backend service with a database and env vars
-- a monorepo package with required toolchain versions
-- a repo that has a mix of shell steps, docs, and tribal knowledge
+- just cloned a repo
+- want to get it running locally
+- do not want to piece setup together from old docs, failed commands, and team lore
 
-The first target user is an engineer who can run commands, but should not have to reverse-engineer setup from scattered docs and failed attempts.
+The first proof target is a Node.js API repo with PostgreSQL, env setup, migrations, and one health check.
 
-## How MVP works
+## How it works
 
-The MVP contract and proof slice are intentionally narrow:
+Pullstart V1 follows a simple flow:
 
-1. Read one canonical onboarding contract: `setup.spec.yaml`
-2. Inspect repo and machine state for one proof repo type
-3. Produce the shortest safe bootstrap plan before risky work
-4. Run or guide the smallest safe setup sequence in later phases
-5. Verify one declared success path and report one trustworthy blocked path
-6. Keep every broader platform idea outside the MVP promise
+1. Read the onboarding contract if the repo has one.
+2. Inspect the repo and the current machine.
+3. Decide what Pullstart can do now and what still needs the user.
+4. Run or guide the shortest safe setup path.
+5. Verify one clear success signal.
+
+The goal is not to explain everything. The goal is to help the user reach a working repo faster.
 
 ## MVP scope
 
-Pullstart v1 is scoped to:
+Pullstart V1 is scoped to:
 
-- contract-driven repo onboarding
-- one canonical onboarding contract: `setup.spec.yaml`
-- one proof repo family: a Node.js API backed by PostgreSQL
-- ordered setup planning, guided execution, verification, and blocker reporting delivered phase-by-phase
-- one meaningful "repo is running" proof path plus one trustworthy blocked outcome
+- onboarding for one real proof repo type
+- a machine-readable onboarding contract concept
+- repo inspection, machine inspection, capability checks, execution, and verification
+- one meaningful runnable success signal
+- clear blocker output when setup cannot continue safely
 
-Pullstart v1 does not include:
+The current contract candidate is `setup.spec.yaml`, but the idea of an onboarding contract matters more than the exact filename.
 
-- a generic agent OS
-- a cross-repo memory or consensus system
+Pullstart V1 does not include:
+
+- a broad developer platform
+- generic repo analysis for every use case
+- a memory product
 - a plugin marketplace
-- a team workflow platform
-- a dashboard-heavy control plane
-- a general autonomous coding agent replacement
+- a team workflow dashboard
+- a hidden automation system with unclear side effects
 
-## Why `setup.spec.yaml`
+## What success looks like
 
-Pullstart needs a contract that is readable by humans and reliable for agents. `setup.spec.yaml` is the canonical onboarding surface because it keeps setup intent structured, versionable, and explicit without forcing every repo to encode onboarding logic in prose.
+For V1, success is simple:
 
-In Phase 1, that contract is now backed by a strict schema and one canonical proof fixture under `contracts/`. Other files like `README.md`, `AGENTS.md`, and `ONBOARDING.md` still matter, but in MVP they are supporting context, not the source of truth.
+- the repo is cloned
+- Pullstart finds the shortest safe bootstrap path
+- Pullstart reaches one verified runnable state
+- or Pullstart stops with a clear, honest blocker message
 
-## First proof scenario
+## What is in the repo today
 
-The first proof target is a single Node.js API proof repo with:
+This repo currently includes:
 
-- PostgreSQL
-- `.env.example`
-- migrations
-- one API health check
+- product framing docs
+- MVP requirements and roadmap
+- a strict contract loader
+- repo and machine inspection
+- a planner that can produce a blocker-first bootstrap plan
 
-Pullstart earns its first proof only if a developer can clone that repo on a half-prepared machine, run the eventual MVP flow, and end with the app booting locally plus a passing health verification, or a precise blocker report that names the missing prerequisite.
-
-Until that proof exists, Pullstart does not claim broad portability across arbitrary repos or stacks.
-
-The implementation-facing boundary for that proof now lives in the proof scenario, proof checklist, and contract artifacts created in Phase 1. Those documents narrow what Phase 2 is allowed to build; they do not expand the MVP promise.
+Next, Pullstart needs the bounded execution and verification layer that can turn the plan into a real onboarding result.
 
 ## Roadmap
 
-The roadmap intentionally stays narrow:
+The roadmap stays narrow:
 
-- Phase 1: contract model and MVP slice
-- Phase 2: minimal planner against the frozen contract and proof checklist
-- Phase 3: minimal executor and verifier
+- Phase 1: contract model and proof slice
+- Phase 2: planner and inspection
+- Phase 3: capability verdict, execution, and verification
 - Phase 4: failure classification
 - Phase 5: one real repo proof
 

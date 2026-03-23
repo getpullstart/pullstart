@@ -25,14 +25,14 @@ Keep Pullstart narrow:
 
 Do not broaden it into:
 
-- a generic agent OS
-- a memory platform
+- a broad platform product
+- a memory product
 - a workflow operating system
 - a plugin platform
 - a broad developer control plane
 
 ## Current Product Contract
 
-The MVP canonical onboarding contract surface is `setup.spec.yaml`.
+The current MVP onboarding contract candidate is `setup.spec.yaml`.
 
 Supporting files like `README.md`, `AGENTS.md`, and `ONBOARDING.md` are secondary or explanatory in MVP.

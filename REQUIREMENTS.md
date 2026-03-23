@@ -83,7 +83,7 @@ Pullstart must:
 
 These are explicitly out of MVP scope and must not leak into the proof repo promise:
 
-- self-learning memory systems
+- self-learning memory products
 - cross-repo shared knowledge graphs
 - plugin ecosystems
 - dashboards and admin surfaces

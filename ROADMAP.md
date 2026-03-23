@@ -115,7 +115,7 @@ These ideas stay outside the initial milestone:
 - team dashboards and workflow views
 - plugin ecosystems
 - broad platform positioning
-- memory-heavy agent OS behavior
+- memory-heavy platform behavior
 - generalized autonomous engineering flows
 
 ## Ordering rationale
