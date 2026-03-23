@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-contract-model-and-mvp-slice-01-PLAN.md
-last_updated: "2026-03-23T03:21:12.480Z"
+stopped_at: Completed 01-contract-model-and-mvp-slice-03-PLAN.md
+last_updated: "2026-03-23T03:29:12.835Z"
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -47,6 +47,7 @@ Plan: 3 of 3
 
 | Phase 01 P02 | 4 | 3 tasks | 3 files |
 | Phase 01-contract-model-and-mvp-slice P01 | 10 | 3 tasks | 5 files |
+| Phase 01-contract-model-and-mvp-slice P03 | 6min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,9 @@ Recent decisions affecting current work:
 - [Phase 01]: Architecture notes stay explanatory while setup.spec.yaml remains the only canonical contract surface.
 - [Phase 01-contract-model-and-mvp-slice]: Phase 1 freezes setup.spec.yaml version 0 to repo, tools, services, env, steps, and verify.
 - [Phase 01-contract-model-and-mvp-slice]: Canonical onboarding fixtures must validate through strict YAML parsing plus Ajv, not prose review alone.
+- [Phase 01-contract-model-and-mvp-slice]: Public docs now describe Pullstart as a product being built, not as already-implemented runtime behavior.
+- [Phase 01-contract-model-and-mvp-slice]: Phase 2 is explicitly constrained to consume the frozen contract and proof checklist rather than redefine scope.
+- [Phase 01-contract-model-and-mvp-slice]: Public and planning requirement surfaces now share CNTR, PLAN, EXEC, BLKR, and PROOF boundaries.
 
 ### Pending Todos
 
@@ -73,6 +77,6 @@ None currently recorded.
 
 ## Session Continuity
 
-Last session: 2026-03-23T03:21:12.479Z
-Stopped at: Completed 01-contract-model-and-mvp-slice-01-PLAN.md
+Last session: 2026-03-23T03:29:12.834Z
+Stopped at: Completed 01-contract-model-and-mvp-slice-03-PLAN.md
 Resume file: None
