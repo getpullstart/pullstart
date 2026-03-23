@@ -14,13 +14,14 @@ Get a real repo from clone to working local setup faster and with fewer dead end
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ `setup.spec.yaml` is the canonical MVP onboarding contract surface, backed by a strict schema and canonical proof fixture — validated in Phase 1
+- ✓ The first proof boundary is one Node.js API + PostgreSQL setup slice with aligned public and planning docs — validated in Phase 1
 
 ### Active
 
-- [ ] Prove that one canonical contract surface can drive a trustworthy onboarding flow for one real repo type.
-- [ ] Deliver a narrow MVP that plans, executes or guides setup, verifies one success path, and reports blockers clearly.
-- [ ] Keep future platform ideas documented but structurally separated from the MVP.
+- [ ] Build the minimal onboarding planner against the frozen contract and proof checklist.
+- [ ] Deliver the narrow MVP execution, verification, and blocker-reporting loop without broadening scope.
+- [ ] Validate the onboarding flow on one real proof repo before claiming broader portability.
 
 ### Out of Scope
 
@@ -58,4 +59,4 @@ Get a real repo from clone to working local setup faster and with fewer dead end
 | Keep planning tracked in git | This repo is greenfield product work, so planning history is part of the project record | ✓ Good |
 
 ---
-*Last updated: 2026-03-23 after Phase 1 contract and proof alignment*
+*Last updated: 2026-03-23 after Phase 1 completion*
