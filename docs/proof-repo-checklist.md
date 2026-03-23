@@ -82,3 +82,29 @@ The following are intentionally deferred beyond this checklist:
 - generalized runtime or plugin abstractions
 - executor internals, verifier internals, or blocker taxonomy mechanics
 - broader repo diagnostics that are not needed to explain the first success or blocked path
+
+## Phase 5 proof status
+
+### Proven now
+
+- Checklist assumptions were validated against one locked proof target and commit.
+- Evidence captured both:
+  - success (`run.status = success`)
+  - blocked (`run.status = blocked`) with explicit `reason` and `nextAction`
+- The blocked ambiguity case (pre-healthy verification target) is now a first-class, documented runtime boundary.
+
+### Manual required
+
+- Users must still provide/maintain valid `.env` values in real runs.
+- Users must ensure service/process state is clean for trustworthy startup verification.
+- Real auth/network conditions remain caveated before execution.
+
+### Deferred
+
+- Promotion of checklist guarantees to multi-repo portability.
+- Any claim that Pullstart can infer full repo setup without contract declaration.
+
+### Unresolved ambiguities
+
+- A pre-healthy verification target (`health` already responding before `start-app`) is treated as ambiguous ownership and must be manually cleared before rerun.
+- Pre-execution auth/network checks remain caveated unknowns until install/runtime commands are attempted.

@@ -61,6 +61,8 @@ steps:
     notes: Keep this process running while the health check is verified.
 
 verify:
+  # Phase 5 evidence note: start-app proof is only trustworthy when this
+  # target is not already healthy from a pre-existing process.
   - id: api-health
     name: Health endpoint responds
     type: http

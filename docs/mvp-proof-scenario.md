@@ -59,3 +59,28 @@ The MVP also succeeds if it reaches one trustworthy blocked outcome instead of g
 - the API cannot satisfy the declared `health` verification after the required setup steps
 
 The blocked condition must identify which prerequisite or setup stage stopped progress. It should not claim success, and it should not widen the scope into generic repo diagnostics.
+
+## Phase 5 evidence snapshot
+
+### Proven now
+
+- One locked proof repo target was executed with the existing `plan` → `verdict` → `run` flow.
+- A success-path run was captured where managed verification reached the declared health target.
+- A blocked-path run was captured on the same repo/commit where the health target was already healthy before `start-app`, yielding a trustworthy ambiguity block and clear rerun action.
+
+### Manual required
+
+- Operators must ensure no pre-existing app process is occupying the verification target before proof reruns.
+- Tool/auth/network certainty can still require human confirmation at execution time.
+- Local service ownership (existing instance vs compose-managed) remains environment-dependent.
+
+### Deferred
+
+- Broader compatibility claims across multiple repo families.
+- Fully automatic environment healing for every blocked class.
+- Advanced run-state reuse/resume semantics beyond current bounded execution model.
+
+### Unresolved ambiguities
+
+- If the health endpoint is already responding before `start-app`, Pullstart cannot prove that this repo startup caused the healthy state; it must block and request process cleanup + rerun.
+- Auth/network certainty for package installation remains unknown in pre-execution verdicts and only resolves during runtime attempts.

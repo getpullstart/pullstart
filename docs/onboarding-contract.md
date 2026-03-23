@@ -42,3 +42,30 @@ Phase 1 does not broaden the contract into a workflow language or portability pr
 - broad portability claims beyond the first Node.js plus PostgreSQL proof slice
 
 Keeping these out of the contract makes the next implementation phases smaller and easier to verify.
+
+## Phase 5 proof-boundary status
+
+### Proven now
+
+- The contract shape is sufficient for one real Node.js API + PostgreSQL proof target.
+- The same contract-driven flow can reach:
+  - `success` when managed `start-app` verification reaches the declared health target.
+  - `blocked` when verification is already healthy before `start-app`, with explicit ambiguity guidance.
+- Runtime outcomes remain contract-bounded: no hidden fallback heuristics outside declared sections.
+
+### Manual required
+
+- Users still own machine prerequisites and service state that cannot be guaranteed pre-execution.
+- When the verification target is already healthy before startup, user intervention is required to clear existing processes and rerun.
+- Environment completeness (`.env` values) remains a real-world prerequisite outside contract parsing itself.
+
+### Deferred
+
+- Adding cross-repo abstraction layers or contract auto-generation.
+- Extending the contract into a generic workflow DSL.
+- Persisted user preference memory and advanced CLI orchestration semantics beyond MVP proof scope.
+
+### Unresolved ambiguities
+
+- Verification ownership ambiguity remains when the health target is already healthy before managed `start-app`; Pullstart blocks and asks for a clean rerun instead of attributing success.
+- Registry auth/network readiness remains unknown before execution and is surfaced as caveats by design.
