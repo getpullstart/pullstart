@@ -2,138 +2,162 @@
 
 ## Roadmap framing
 
-This roadmap is built around one believable MVP:
+This roadmap follows a stricter architecture sequence for an evidence-driven onboarding engine:
 
-**Help a developer go from cloned repo to working local setup through a contract-driven onboarding flow.**
+1. authority model
+2. evidence model
+3. capability verdict
+4. policy-gated planning
+5. policy-gated execution
+6. verification and blocker truth
+7. one proof repo hardening
 
-Every MVP phase must support:
+Each phase must preserve MVP guardrails:
 
-- the `setup.spec.yaml` contract surface
-- the first Node.js API + PostgreSQL proof repo
-- a trustworthy setup result or blocker report
+- narrow onboarding scope
+- deterministic truth ownership
+- agent review by default (advisory, not hidden authority)
+- policy-gated execution
+- verification as trust boundary
+- blocked/unknown as first-class outcomes
 
-## Phase 1 — Contract model and MVP slice
-
-### Purpose
-
-Freeze the MVP contract, proof repo boundary, and public story so later implementation phases build against one stable surface.
-
-### Scope
-
-- product framing and README alignment
-- MVP thesis and falsification check
-- explicit non-goals
-- strict `setup.spec.yaml` schema and canonical example
-- first proof scenario and proof checklist
-- roadmap and requirements alignment around the same narrow scope
-
-### Success condition
-
-The repo clearly states what Pullstart is, what it is not, what contract it reads, what proof repo it targets, and where Phase 2 begins.
-
-## Phase 2 — Minimal onboarding planner
+## Phase 1 — Authority and evidence contract
 
 ### Purpose
 
-Consume the frozen contract and proof checklist, inspect repo and machine state, and turn that evidence into an ordered bootstrap plan without redefining the contract or widening the proof claim.
+Define who owns truth, what contract authority means, and how declared intent is bounded.
 
 ### Scope
 
-- parse the frozen MVP `setup.spec.yaml`
-- inspect local machine prerequisites
-- inspect repo metadata needed for the proof repo checklist
-- detect missing tools, env setup gaps, and service prerequisites
-- produce a stepwise plan with dependency ordering
+- authority model and product framing alignment
+- `setup.spec.yaml` as declared-intent candidate surface
+- explicit contract confidence states
+- explicit non-goals and uncertainty language
 
 ### Success condition
 
-Given the proof repo contract, Pullstart can explain the shortest safe bootstrap path before taking action without redefining the contract or broadening scope.
+Pullstart no longer reads as planner-first or autonomy-first; it reads as deterministic evidence system with bounded agent review.
 
-## Phase 3 — Minimal executor and verifier
+## Phase 2 — Deterministic evidence core
 
 ### Purpose
 
-Run or guide the most important setup steps, then verify whether the repo is runnable enough.
+Build canonical evidence normalization and provenance preservation across declared, observed, inferred, and runtime facts.
 
 ### Scope
 
-- guided versus automatic execution mode
-- run critical bootstrap commands in sequence
-- capture outcomes step by step
-- execute one declared verification path
-- summarize pass, fail, and blocked states cleanly
+- repo inspection evidence model
+- machine inspection evidence model
+- contradiction representation
+- unknown-state propagation
+- provenance tagging rules
 
 ### Success condition
 
-Pullstart can complete the proof scenario's declared setup path or stop safely with a structured blocker report.
+Every fact consumed downstream is typed by source and confidence; contradictions and unknowns survive all stages.
 
-## Phase 4 — Failure classification
+## Phase 3 — Capability verdict engine
 
 ### Purpose
 
-Normalize the most common onboarding failures so the agent can explain what is wrong without vague log walls.
+Translate evidence into typed readiness/eligibility outcomes before planning/execution.
 
 ### Scope
 
-- missing toolchain versions
-- env file missing or incomplete
-- Docker not running
-- database or dependent service unhealthy
-- install failure
-- migration failure
-- verification command failure
+- typed verdict families
+- contradiction-to-block mapping
+- unknown-requires-review mapping
+- enterprise-aware blocker families (auth/network/permission/private deps)
 
 ### Success condition
 
-Failures in the proof scenario map to a small, understandable blocker vocabulary with actionable next steps.
+Proceed/ask/block/unknown truth is deterministic and structured first, narrative second.
 
-## Phase 5 — One real repo proof
+## Phase 4 — Policy-gated planner with agent review
 
 ### Purpose
 
-Prove the MVP against one real repository and remove abstractions that do not survive contact with actual onboarding friction.
+Derive shortest safe path from evidence + verdict + policy, with agent review for explanation and alternatives.
 
 ### Scope
 
-- test against the chosen Node.js API proof repo
-- refine contract fields based on real failure cases
-- cut fake generality
-- tighten verification expectations
-- document what still requires manual intervention
+- dependency graph and eligibility mapping
+- step traceability to evidence/verdict/policy
+- policy classification integration (`auto-runnable`, `confirmation-required`, `manual-only`, `blocked`, `forbidden`)
+- review-friendly rationale output
 
 ### Success condition
 
-A real repo onboarding flow completes more reliably with Pullstart than with the repo's baseline README-only path.
+Planner owns ordered candidates, not truth authority; every step has deterministic provenance.
 
-## What belongs after MVP
+Policy gate owns execution permission; planner/agent/contract do not self-authorize execution.
 
-These ideas stay outside the initial milestone:
+## Phase 5 — Policy-gated execution
+
+### Purpose
+
+Run only policy-allowed high-confidence actions and record runtime-observed truth.
+
+### Scope
+
+- bounded execution orchestration
+- step-boundary logging and runtime evidence capture
+- expected vs observed reconciliation
+- stop-on-failure and stop-on-ambiguity behavior
+
+### Success condition
+
+Execution is conservative, low-surprise, and never outruns policy or capability truth.
+
+## Phase 6 — Verification and blocker truth
+
+### Purpose
+
+Establish verification as proof boundary and blocker explanation as deterministic downstream truth.
+
+### Scope
+
+- explicit verification target states
+- ownership ambiguity handling (healthy-but-ownership-unknown)
+- blocker schema with observed facts, likely causes, next checks, manual actions
+- unknown-preserving output semantics
+
+### Success condition
+
+“Commands ran” is not treated as success; only verification can grant runnable-enough proof.
+
+## Phase 7 — One proof repo hardening
+
+### Purpose
+
+Validate the complete architecture on one real proof repo and tighten truth boundaries without scope broadening.
+
+### Scope
+
+- one locked proof target
+- success + blocked + unknown evidence capture
+- evidence-gated doc/contract refinement
+- explicit proven/manual/deferred/unresolved framing
+
+### Success condition
+
+One proof repo path is trustworthy and honest; portability claims remain deferred.
+
+## What stays deferred beyond MVP
 
 - multi-repo portability claims
-- contract generation or auto-authoring
-- persistent learning or self-improving behavior
-- team dashboards and workflow views
-- plugin ecosystems
-- broad platform positioning
-- memory-heavy platform behavior
-- generalized autonomous engineering flows
+- platform control plane stories
+- memory product positioning
+- plugin ecosystem
+- hidden autonomous planner-of-record behavior
 
-## Ordering rationale
+## Exit criteria for this architecture cycle
 
-The order is intentional:
+Pullstart is aligned when:
 
-1. Lock the contract and product story first.
-2. Build planning against the frozen contract and proof checklist so actions stay explainable.
-3. Build execution before richer failure taxonomy so behavior is grounded in real steps.
-4. Test on one real repo before broadening portability or architecture.
-
-## MVP exit criteria
-
-Pullstart is ready to claim an MVP when all of the following are true:
-
-- the contract surface is stable enough for the proof repo
-- the planner creates a credible ordered setup path
-- the executor can guide or run the key bootstrap steps
-- verification can confirm a working local state
-- common failures are classified into actionable blocker types
-- the proof repo result is documented honestly
+- authority boundaries are explicit and enforced
+- deterministic evidence model survives the pipeline
+- capability and policy gates precede execution
+- blocked/unknown are first-class and visible
+- verification remains the only trust boundary
+- proof repo hardening is documented without false certainty
