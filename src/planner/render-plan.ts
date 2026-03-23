@@ -1,0 +1,33 @@
+import type { BootstrapPlan } from './plan-types.js'
+
+export function renderPlan(plan: BootstrapPlan) {
+  const lines: string[] = []
+
+  lines.push('Pullstart planner summary')
+  lines.push('')
+
+  if (plan.blockers.length > 0) {
+    lines.push('Blockers:')
+    for (const blocker of plan.blockers) {
+      lines.push(`- ${blocker.id}: ${blocker.message}`)
+    }
+    lines.push('')
+  }
+
+  if (plan.selectedServiceOptions.length > 0) {
+    lines.push('Selected service path:')
+    for (const option of plan.selectedServiceOptions) {
+      lines.push(`- ${option.serviceName}: ${option.optionId} (${option.reason})`)
+    }
+    lines.push('')
+  }
+
+  lines.push('Ordered steps:')
+  for (const step of plan.steps) {
+    const dependencies = step.dependsOn.length > 0 ? ` depends on ${step.dependsOn.join(', ')}` : ''
+    const reason = step.reason ? ` — ${step.reason}` : ''
+    lines.push(`- [${step.status}] ${step.id}: ${step.name}${dependencies}${reason}`)
+  }
+
+  return lines.join('\n')
+}
