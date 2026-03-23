@@ -36,7 +36,7 @@ Plans:
 - [x] 01-03: Align public docs and planning docs around the same narrow MVP slice.
 
 ### Phase 2: Minimal Onboarding Planner
-**Goal**: Build the planner that reads the frozen contract, consumes the proof-repo checklist, inspects repo and machine state, and produces a shortest safe bootstrap plan.
+**Goal**: Build the planner that reads the frozen contract, consumes the proof-repo checklist, inspects repo and machine state, and produces a shortest safe bootstrap plan without redefining the contract boundary.
 **Depends on**: Phase 1
 **Requirements**: [PLAN-01, PLAN-02, PLAN-03]
 **Success Criteria** (what must be TRUE):
@@ -101,7 +101,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Contract Model And MVP Slice | 0/3 | In progress | - |
+| 1. Contract Model And MVP Slice | 2/3 | In progress | - |
 | 2. Minimal Onboarding Planner | 0/3 | Not started | - |
 | 3. Minimal Executor And Verifier | 0/3 | Not started | - |
 | 4. Failure Classification | 0/2 | Not started | - |

@@ -35,6 +35,7 @@ Get a real repo from clone to working local setup faster and with fewer dead end
 - Pullstart's MVP wedge is intentionally narrow: "Clone a repo. Let the agent get it running."
 - The canonical onboarding contract surface for MVP is `setup.spec.yaml`.
 - The first proof scenario is a Node.js API repository with PostgreSQL, `.env.example`, migrations, and a health check.
+- Phase 1 now also defines a proof-repo checklist and a strict schema-backed contract boundary that Phase 2 must consume rather than reinterpret.
 - Root docs such as `README.md`, `PROJECT.md`, `ROADMAP.md`, and `REQUIREMENTS.md` are sound and should remain the public product explanation.
 - `.planning/` is now the execution source of truth so future work can move phase-by-phase instead of relying on fresh bootstrap prompts.
 
@@ -53,7 +54,8 @@ Get a real repo from clone to working local setup faster and with fewer dead end
 | Use `setup.spec.yaml` as the MVP contract surface | Structured, reviewable, and better suited than markdown-only onboarding for agent execution | — Pending |
 | Treat root docs as product-facing and `.planning/` as execution-facing | Preserves good framing while giving future work a real GSD operating surface | ✓ Good |
 | Start with one Node.js API + Postgres proof repo | Narrow proof target keeps the MVP honest and testable | — Pending |
+| Freeze Phase 1 at contract plus proof readiness, not runtime implementation | Keeps planner work in Phase 2 from broadening or redefining the MVP boundary | ✓ Good |
 | Keep planning tracked in git | This repo is greenfield product work, so planning history is part of the project record | ✓ Good |
 
 ---
-*Last updated: 2026-03-23 after GSD bootstrap conversion*
+*Last updated: 2026-03-23 after Phase 1 contract and proof alignment*
