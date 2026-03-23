@@ -354,6 +354,9 @@
             }
           },
           "then": {
+            "properties": {
+              "command": true
+            },
             "required": [
               "command"
             ]
@@ -368,6 +371,9 @@
             }
           },
           "then": {
+            "properties": {
+              "note": true
+            },
             "required": [
               "note"
             ]

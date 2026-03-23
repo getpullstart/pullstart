@@ -2,48 +2,67 @@ version: 0
 
 repo:
   name: sample-node-api
-  purpose: Local onboarding contract for a Node.js API with PostgreSQL.
+  description: Proof repo contract for a Node.js API with PostgreSQL and a health check.
 
-prerequisites:
-  tools:
-    - name: node
-      version: "20.x"
-    - name: pnpm
-      version: "9.x"
-    - name: docker
-      version: "24+"
-      optional: true
-  files:
-    - path: .env
-      derive_from: .env.example
+tools:
+  - name: node
+    version: 20.x
+    required: true
+  - name: pnpm
+    version: 9.x
+    required: true
+  - name: docker
+    version: 24+
+    required: false
+    notes: Docker is only needed when using the compose-backed Postgres option.
 
 services:
   - name: postgres
-    mode: docker-compose
+    kind: postgres
     required: true
+    strategy: one_of
+    options:
+      - id: docker-compose
+        type: docker-compose
+        command: docker compose up -d postgres
+      - id: local-instance
+        type: existing
+        note: Use an already running local PostgreSQL instance.
     healthcheck:
       type: tcp
       target: localhost:5432
 
+env:
+  required_files:
+    - path: .env
+      example: .env.example
+  required_vars:
+    - name: DATABASE_URL
+      source: .env.example
+      description: Database connection string used by migrations and app startup.
+    - name: PORT
+      source: .env.example
+      description: Local port exposed by the development server.
+
 steps:
   - id: install
+    name: Install dependencies
     run: pnpm install
-    required: true
   - id: start-postgres
+    name: Start PostgreSQL
     run: docker compose up -d postgres
-    required: true
+    notes: Skip this step when using the existing local Postgres option.
   - id: migrate
+    name: Run database migrations
     run: pnpm db:migrate
-    required: true
   - id: start-app
+    name: Start the API
     run: pnpm dev
-    required: true
+    notes: Keep this process running while the health check is verified.
 
 verify:
   - id: api-health
+    name: Health endpoint responds
     type: http
     target: http://localhost:3000/health
     expect_status: 200
-
-fallback_notes:
-  - If Docker is unavailable, connect to an already running local PostgreSQL instance.
