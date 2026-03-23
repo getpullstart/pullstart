@@ -63,7 +63,7 @@ Each task was committed atomically:
 2. **Task 2: Align planning docs to the same contract and Phase 2 target** - `6225ffc` (docs)
 3. **Task 3: Reconcile requirement language across public and planning surfaces** - `207f40f` (docs)
 
-**Plan metadata:** pending final documentation commit
+**Plan metadata:** `7b5fbbc` (docs)
 
 ## Files Created/Modified
 
