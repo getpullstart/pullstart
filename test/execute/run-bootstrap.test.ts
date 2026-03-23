@@ -20,6 +20,7 @@ const input: RunBootstrapInput = {
   },
   verdict: {
     decision: 'can-act',
+    family: 'unknown-requires-review',
     nextStepId: 'install',
     checks: [],
     caveats: ['network reachability for install is unknown'],
@@ -161,5 +162,40 @@ describe('EXEC-01/EXEC-03 runBootstrap', () => {
     expect(verificationEvent?.details?.nextAction).toContain('expected status')
     expect(verificationEvent?.details?.runtimeEvidenceRefs).toBeDefined()
     expect(outcome.unknownEvidence).toEqual(input.verdict.unknownEvidence)
+  })
+
+  it('keeps execution gating authoritative on decision regardless of family value', async () => {
+    const runFiniteStep = vi.fn(async () => ({
+      status: 'succeeded' as const,
+      exitCode: 0,
+      stdout: 'ok',
+      stderr: '',
+      durationMs: 10
+    }))
+
+    const outcome = await runBootstrap(
+      {
+        ...input,
+        verdict: {
+          ...input.verdict,
+          decision: 'needs-user-action',
+          family: 'ready',
+          requiredUserAction: 'Install missing dependency first.'
+        }
+      },
+      {
+        runFiniteStep,
+        runManagedStartApp: vi.fn(async () => ({
+          status: 'success',
+          reason: 'verified',
+          logs: []
+        }))
+      }
+    )
+
+    expect(runFiniteStep).not.toHaveBeenCalled()
+    expect(outcome.status).toBe('blocked')
+    expect(outcome.reason).toContain('capability verdict is needs-user-action')
+    expect(outcome.nextAction).toContain('Install missing dependency first.')
   })
 })

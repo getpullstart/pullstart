@@ -309,4 +309,103 @@ describe('CAP-01/CAP-02 buildCapabilityVerdict', () => {
     )
     expect(verdict.family).toBe('blocked-by-machine-prereq')
   })
+
+  it('derives deterministic family priority across unsafe, blocked, unknown, manual, and ready states', () => {
+    const unsafeVerdict = buildCapabilityVerdict(
+      loaded.spec,
+      createPlan(),
+      createMachine(),
+      createSession({ permissions: { repoRootWritable: false } })
+    )
+    expect(unsafeVerdict.family).toBe('unsafe-to-execute')
+
+    const blockedRepoVerdict = buildCapabilityVerdict(
+      loaded.spec,
+      createPlan({
+        blockers: [
+          {
+            id: 'repo:setup-spec',
+            scope: 'repo',
+            message: 'setup spec is missing required section',
+            stepIds: ['install']
+          }
+        ]
+      }),
+      createMachine(),
+      createSession()
+    )
+    expect(blockedRepoVerdict.family).toBe('blocked-by-repo-gap')
+
+    const blockedExternalVerdict = buildCapabilityVerdict(
+      loaded.spec,
+      createPlan({
+        blockers: [
+          {
+            id: 'auth:registry-permission-denied',
+            scope: 'repo',
+            message: 'registry denied auth for requested package',
+            stepIds: ['install']
+          }
+        ]
+      }),
+      createMachine(),
+      createSession()
+    )
+    expect(blockedExternalVerdict.family).toBe('blocked-by-external-access')
+
+    const unknownVerdict = buildCapabilityVerdict(loaded.spec, createPlan(), createMachine(), createSession())
+    expect(unknownVerdict.family).toBe('unknown-requires-review')
+
+    const manualVerdict = buildCapabilityVerdict(
+      loaded.spec,
+      createPlan({
+        steps: [{ id: 'start-app', name: 'Start API', run: 'pnpm dev', status: 'ready', dependsOn: [] }]
+      }),
+      createMachine(),
+      createSession({ unknownEvidence: [], unknowns: [] })
+    )
+    expect(manualVerdict.family).toBe('ready-with-manual-step')
+
+    const readyVerdict = buildCapabilityVerdict(
+      loaded.spec,
+      createPlan({
+        steps: [{ id: 'migrate', name: 'Run database migrations', run: 'pnpm db:migrate', status: 'ready', dependsOn: [] }]
+      }),
+      createMachine(),
+      createSession({ unknownEvidence: [], unknowns: [] })
+    )
+    expect(readyVerdict.family).toBe('ready')
+  })
+
+  it('preserves unknown-first semantics unless runtime-observed external failure is present', () => {
+    const preExecutionUnknown = buildCapabilityVerdict(
+      loaded.spec,
+      createPlan(),
+      createMachine(),
+      createSession()
+    )
+    expect(preExecutionUnknown.decision).toBe('can-act')
+    expect(preExecutionUnknown.family).toBe('unknown-requires-review')
+    expect(preExecutionUnknown.checks.some((check) => check.id === 'auth:registry' && check.state === 'unknown')).toBe(
+      true
+    )
+
+    const runtimeObservedExternalFailure = buildCapabilityVerdict(
+      loaded.spec,
+      createPlan({
+        blockers: [
+          {
+            id: 'network:private-registry-unreachable',
+            scope: 'repo',
+            message: 'private registry was unreachable during install attempt',
+            stepIds: ['install']
+          }
+        ]
+      }),
+      createMachine(),
+      createSession()
+    )
+    expect(runtimeObservedExternalFailure.decision).toBe('needs-user-action')
+    expect(runtimeObservedExternalFailure.family).toBe('blocked-by-external-access')
+  })
 })
