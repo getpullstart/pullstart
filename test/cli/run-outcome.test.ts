@@ -95,8 +95,10 @@ describe('EXEC-02/EXEC-04 run outcome reporting', () => {
     expect(timeoutOutcome.nextAction).toBe('Fix startup readiness and retry run.')
 
     const rendered = renderRunOutcome(timeoutOutcome)
+    expect(rendered).toContain('Category: verification')
     expect(rendered).toContain('Next action: Fix startup readiness and retry run.')
     expect(rendered).toContain('Unknown: Auth certainty is unknown')
+    expect((rendered.match(/Next action:/g) ?? []).length).toBe(1)
   })
 
   it('keeps reporting contract-bound without generic diagnostics expansion', () => {
@@ -119,8 +121,38 @@ describe('EXEC-02/EXEC-04 run outcome reporting', () => {
     })
 
     expect(rendered).toContain('Status: blocked')
+    expect(rendered).toContain('Category: verification')
     expect(rendered).toContain('Guided step: start-app')
     expect(rendered).not.toContain('taxonomy')
     expect(rendered).not.toContain('deep diagnostics')
+  })
+
+  it('classifies non-verification blocked outcomes into machine/service/repo categories', () => {
+    const machine = renderRunOutcome({
+      status: 'blocked',
+      reason: 'repo root is not writable',
+      executedStepIds: [],
+      events: [{ type: 'blocked', at: new Date().toISOString(), message: 'permission issue' }],
+      caveats: []
+    })
+    expect(machine).toContain('Category: machine-prerequisite')
+
+    const service = renderRunOutcome({
+      status: 'blocked',
+      reason: 'service postgres is not reachable',
+      executedStepIds: [],
+      events: [{ type: 'blocked', at: new Date().toISOString(), message: 'service issue' }],
+      caveats: []
+    })
+    expect(service).toContain('Category: service-health')
+
+    const repo = renderRunOutcome({
+      status: 'blocked',
+      reason: 'step migrate failed',
+      executedStepIds: ['install'],
+      events: [{ type: 'step-failed', at: new Date().toISOString(), message: 'step failed' }],
+      caveats: []
+    })
+    expect(repo).toContain('Category: repo-setup')
   })
 })

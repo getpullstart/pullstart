@@ -1,4 +1,5 @@
 import type { BootstrapPlan } from './plan-types.js'
+import { classifyPlannerBlocker } from '../blockers/classify-blocker.js'
 
 export function renderPlan(plan: BootstrapPlan) {
   const lines: string[] = []
@@ -9,7 +10,10 @@ export function renderPlan(plan: BootstrapPlan) {
   if (plan.blockers.length > 0) {
     lines.push('Blockers:')
     for (const blocker of plan.blockers) {
-      lines.push(`- ${blocker.id}: ${blocker.message}`)
+      const classified = classifyPlannerBlocker(blocker)
+      lines.push(
+        `- ${blocker.id} [${classified.category}]: ${blocker.message} Next action: ${classified.nextAction}`
+      )
     }
     lines.push('')
   }

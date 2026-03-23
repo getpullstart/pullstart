@@ -116,5 +116,7 @@ describe('EXEC-01/EXEC-03 runBootstrap', () => {
     expect(outcome.reason).toContain('never reached expected status')
     expect(outcome.nextAction).toContain('expected status')
     expect(outcome.events.some((event) => event.type === 'verification-failed')).toBe(true)
+    const verificationEvent = outcome.events.find((event) => event.type === 'verification-failed')
+    expect(verificationEvent?.details?.nextAction).toContain('expected status')
   })
 })

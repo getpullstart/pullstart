@@ -7,6 +7,18 @@ describe('renderPlan', () => {
     const rendered = renderPlan({
       blockers: [
         {
+          id: 'tool:node',
+          scope: 'tool',
+          message: 'Required tool node does not satisfy 20.x.',
+          stepIds: ['install']
+        },
+        {
+          id: 'service:postgres',
+          scope: 'service',
+          message: 'Service postgres is not reachable at localhost:5432.',
+          stepIds: ['migrate', 'start-app']
+        },
+        {
           id: 'env-file:.env',
           scope: 'env-file',
           message: 'Missing env file .env; expected template .env.example.',
@@ -41,7 +53,10 @@ describe('renderPlan', () => {
     })
 
     expect(rendered).toContain('Blockers:')
-    expect(rendered).toContain('env-file:.env')
+    expect(rendered).toContain('tool:node [machine-prerequisite]')
+    expect(rendered).toContain('service:postgres [service-health]')
+    expect(rendered).toContain('env-file:.env [machine-prerequisite]')
+    expect(rendered).toContain('Next action:')
     expect(rendered).toContain('Selected service path:')
     expect(rendered).toContain('[blocked] migrate')
     expect(rendered).toContain('depends on install')

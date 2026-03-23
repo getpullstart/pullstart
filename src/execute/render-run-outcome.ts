@@ -1,4 +1,5 @@
 import type { RunOutcome } from './execution-types.js'
+import { classifyRuntimeBlocker } from '../blockers/classify-blocker.js'
 
 function normalizeCaveat(caveat: string) {
   return caveat.trim().replace(/\.$/, '')
@@ -12,10 +13,23 @@ export function renderRunOutcome(outcome: RunOutcome) {
   lines.push(`Status: ${outcome.status}`)
   lines.push(`Reason: ${outcome.reason}`)
 
-  if (outcome.nextAction) {
+  if (outcome.status === 'blocked') {
+    const classificationEvent = [...outcome.events]
+      .reverse()
+      .find(
+        (item) =>
+          item.type === 'verification-failed' || item.type === 'step-failed' || item.type === 'blocked'
+      )
+    const classified = classifyRuntimeBlocker({
+      reason: outcome.reason,
+      nextAction: outcome.nextAction,
+      eventType: classificationEvent?.type as 'verification-failed' | 'step-failed' | 'blocked' | undefined,
+      details: classificationEvent?.details
+    })
+    lines.push(`Category: ${classified.category}`)
+    lines.push(`Next action: ${classified.nextAction}`)
+  } else if (outcome.nextAction) {
     lines.push(`Next action: ${outcome.nextAction}`)
-  } else if (outcome.status === 'blocked') {
-    lines.push('Next action: Resolve the first blocked condition and rerun Pullstart.')
   }
 
   lines.push('')
