@@ -1,5 +1,9 @@
 import type { CapabilityVerdict } from './capability-types.js'
 
+function normalizeCaveat(caveat: string) {
+  return caveat.trim().replace(/\.$/, '')
+}
+
 export function renderCapabilityVerdict(verdict: CapabilityVerdict) {
   const lines: string[] = []
 
@@ -8,8 +12,12 @@ export function renderCapabilityVerdict(verdict: CapabilityVerdict) {
   lines.push(`Decision: ${verdict.decision}`)
   lines.push(`Next step: ${verdict.nextStepId ?? 'none'}`)
 
-  if (verdict.requiredUserAction) {
-    lines.push(`Required user action: ${verdict.requiredUserAction}`)
+  const normalizedAction = verdict.requiredUserAction?.trim()
+
+  if (normalizedAction) {
+    lines.push(`Next action: ${normalizedAction}`)
+  } else if (verdict.decision !== 'can-act') {
+    lines.push('Next action: Resolve the blocking check listed first and rerun verdict.')
   }
 
   lines.push('')
@@ -23,7 +31,7 @@ export function renderCapabilityVerdict(verdict: CapabilityVerdict) {
     lines.push('')
     lines.push('Caveats:')
     for (const caveat of verdict.caveats) {
-      lines.push(`- ${caveat}`)
+      lines.push(`- Unknown: ${normalizeCaveat(caveat)}`)
     }
   }
 

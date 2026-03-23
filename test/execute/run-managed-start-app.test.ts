@@ -39,14 +39,12 @@ const verification = {
 describe('EXEC-04 runManagedStartApp', () => {
   it('returns ambiguous blocked state when target is healthy before startup', async () => {
     const result = await runManagedStartApp('/tmp/proof-repo', 'pnpm dev', verification, {
-      verifyHttpTarget: vi
-        .fn()
-        .mockResolvedValueOnce({ status: 'success', attempts: 1, durationMs: 10 })
-        .mockResolvedValueOnce({ status: 'success', attempts: 1, durationMs: 10 })
+      verifyHttpTarget: vi.fn().mockResolvedValueOnce({ status: 'success', attempts: 1, durationMs: 10 })
     })
 
     expect(result.status).toBe('blocked')
     expect(result.reason).toContain('already healthy')
+    expect(result.nextAction).toContain('rerun')
   })
 
   it('terminates managed app process on verification success', async () => {
@@ -65,12 +63,18 @@ describe('EXEC-04 runManagedStartApp', () => {
     expect(processRef.kill).toHaveBeenCalled()
   })
 
-  it('terminates managed app process on verification timeout', async () => {
+  it('returns deterministic blocked guidance on status mismatch', async () => {
     const processRef = createFakeProcess()
     const verify = vi
       .fn()
       .mockResolvedValueOnce({ status: 'timeout', attempts: 1, durationMs: 10 })
-      .mockResolvedValueOnce({ status: 'timeout', attempts: 3, durationMs: 50 })
+      .mockResolvedValueOnce({
+        status: 'status-mismatch',
+        attempts: 3,
+        lastStatus: 503,
+        error: 'expected 200, got 503',
+        durationMs: 50
+      })
 
     const result = await runManagedStartApp('/tmp/proof-repo', 'pnpm dev', verification, {
       verifyHttpTarget: verify,
@@ -78,7 +82,8 @@ describe('EXEC-04 runManagedStartApp', () => {
     })
 
     expect(result.status).toBe('blocked')
-    expect(result.reason).toContain('timed out')
+    expect(result.reason).toContain('never reached expected status')
+    expect(result.nextAction).toContain('expected status')
     expect(processRef.kill).toHaveBeenCalled()
   })
 })

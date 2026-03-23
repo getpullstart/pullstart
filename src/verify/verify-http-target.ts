@@ -1,7 +1,7 @@
 import type { VerificationStep } from '../contract/setup-spec-types.js'
 
 export interface HttpVerificationResult {
-  status: 'success' | 'timeout' | 'network-error'
+  status: 'success' | 'timeout' | 'network-error' | 'status-mismatch'
   attempts: number
   lastStatus?: number
   error?: string
@@ -31,6 +31,7 @@ export async function verifyHttpTarget(
   let attempts = 0
   let lastStatus: number | undefined
   let lastError: string | undefined
+  let sawStatusMismatch = false
 
   while (Date.now() - start < timeoutMs) {
     attempts += 1
@@ -46,6 +47,9 @@ export async function verifyHttpTarget(
           durationMs: Date.now() - start
         }
       }
+
+      sawStatusMismatch = true
+      lastError = `expected ${target.expect_status}, got ${response.status}`
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error)
     }
@@ -57,6 +61,16 @@ export async function verifyHttpTarget(
     return {
       status: 'network-error',
       attempts,
+      error: lastError,
+      durationMs: Date.now() - start
+    }
+  }
+
+  if (sawStatusMismatch) {
+    return {
+      status: 'status-mismatch',
+      attempts,
+      lastStatus,
       error: lastError,
       durationMs: Date.now() - start
     }

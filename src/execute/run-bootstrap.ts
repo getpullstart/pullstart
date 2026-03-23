@@ -12,7 +12,11 @@ import { runManagedStartApp } from './run-managed-start-app.js'
 
 interface RunBootstrapOptions {
   selectExecutionPath?: typeof selectExecutionPath
-  runFiniteStep?: (repoRoot: string, step: { id: string; name: string; run: string }, options?: object) => Promise<CommandResult>
+  runFiniteStep?: (
+    repoRoot: string,
+    step: { id: string; name: string; run: string },
+    options?: object
+  ) => Promise<CommandResult>
   runManagedStartApp?: (
     repoRoot: string,
     stepCommand: string,
@@ -60,7 +64,11 @@ export async function runBootstrap(
   const caveats = [...input.verdict.caveats]
 
   if (selectedPath.boundary.kind === 'blocked' && selectedPath.steps.length === 0) {
-    events.push(event('blocked', selectedPath.boundary.reason, selectedPath.boundary.stepId))
+    events.push(
+      event('blocked', selectedPath.boundary.reason, selectedPath.boundary.stepId, {
+        nextAction: selectedPath.boundary.nextAction
+      })
+    )
 
     return {
       status: 'blocked',
@@ -82,7 +90,8 @@ export async function runBootstrap(
         event('step-failed', `Step ${step.id} failed`, step.id, {
           status: result.status,
           exitCode: result.exitCode,
-          stderr: result.stderr
+          stderr: result.stderr,
+          nextAction: 'Fix the failing step and rerun Pullstart.'
         })
       )
 
@@ -138,7 +147,8 @@ export async function runBootstrap(
       events.push(
         event('verification-failed', managed.reason, guidedStep.id, {
           logs: managed.logs,
-          ...managed.details
+          ...managed.details,
+          nextAction: managed.nextAction
         })
       )
 

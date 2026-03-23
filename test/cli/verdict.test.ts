@@ -11,12 +11,7 @@ describe('verdict CLI', () => {
     }))
     const inspectRepo = vi.fn(() => ({ repoInspection: true }))
     const inspectMachine = vi.fn(async () => ({ machineInspection: true }))
-    const buildPlan = vi.fn(() => ({
-      blockers: [],
-      selectedServiceOptions: [],
-      satisfiedFacts: [],
-      steps: []
-    }))
+    const buildPlan = vi.fn(() => ({ blockers: [], selectedServiceOptions: [], satisfiedFacts: [], steps: [] }))
     const inspectSession = vi.fn(() => ({
       repoRoot: '/tmp/proof-repo',
       permissions: { repoRootWritable: true },
@@ -24,12 +19,21 @@ describe('verdict CLI', () => {
       blockers: []
     }))
     const buildCapabilityVerdict = vi.fn(() => ({
-      decision: 'can-act',
+      decision: 'needs-user-action',
       nextStepId: 'install',
+      requiredUserAction: 'Install Node.js 20.x',
       checks: [],
-      caveats: []
+      caveats: ['Network reachability is unknown.']
     }))
-    const renderCapabilityVerdict = vi.fn(() => 'rendered capability verdict')
+    const renderCapabilityVerdict = vi.fn(() =>
+      [
+        'Pullstart capability verdict',
+        'Decision: needs-user-action',
+        'Next action: Install Node.js 20.x',
+        'Caveats:',
+        '- Unknown: Network reachability is unknown'
+      ].join('\n')
+    )
     const forbidden = vi.fn()
 
     await main(['--summary'], {
@@ -51,6 +55,7 @@ describe('verdict CLI', () => {
       runBootstrap: forbidden
     })
 
+    const output = writes.join('')
     expect(loadSetupSpec).toHaveBeenCalledWith('/tmp/proof-repo/setup.spec.yaml')
     expect(inspectRepo).toHaveBeenCalledTimes(1)
     expect(inspectMachine).toHaveBeenCalledTimes(1)
@@ -59,7 +64,8 @@ describe('verdict CLI', () => {
     expect(buildCapabilityVerdict).toHaveBeenCalledTimes(1)
     expect(renderCapabilityVerdict).toHaveBeenCalledTimes(1)
     expect(forbidden).not.toHaveBeenCalled()
-    expect(writes.join('')).toContain('"decision": "can-act"')
-    expect(writes.join('')).toContain('rendered capability verdict')
+    expect(output).toContain('"decision": "needs-user-action"')
+    expect(output).toContain('Next action: Install Node.js 20.x')
+    expect(output).toContain('Unknown: Network reachability is unknown')
   })
 })

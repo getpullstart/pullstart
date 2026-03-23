@@ -1,5 +1,9 @@
 import type { RunOutcome } from './execution-types.js'
 
+function normalizeCaveat(caveat: string) {
+  return caveat.trim().replace(/\.$/, '')
+}
+
 export function renderRunOutcome(outcome: RunOutcome) {
   const lines: string[] = []
 
@@ -10,10 +14,14 @@ export function renderRunOutcome(outcome: RunOutcome) {
 
   if (outcome.nextAction) {
     lines.push(`Next action: ${outcome.nextAction}`)
+  } else if (outcome.status === 'blocked') {
+    lines.push('Next action: Resolve the first blocked condition and rerun Pullstart.')
   }
 
   lines.push('')
-  lines.push(`Executed steps: ${outcome.executedStepIds.length > 0 ? outcome.executedStepIds.join(', ') : 'none'}`)
+  lines.push(
+    `Executed steps: ${outcome.executedStepIds.length > 0 ? outcome.executedStepIds.join(', ') : 'none'}`
+  )
 
   if (outcome.guidedStepId) {
     lines.push(`Guided step: ${outcome.guidedStepId}`)
@@ -23,7 +31,7 @@ export function renderRunOutcome(outcome: RunOutcome) {
     lines.push('')
     lines.push('Caveats:')
     for (const caveat of outcome.caveats) {
-      lines.push(`- ${caveat}`)
+      lines.push(`- Unknown: ${normalizeCaveat(caveat)}`)
     }
   }
 

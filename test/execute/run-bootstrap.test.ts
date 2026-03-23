@@ -14,12 +14,7 @@ const input: RunBootstrapInput = {
         run: 'docker compose up -d postgres',
         status: 'pending'
       },
-      {
-        id: 'migrate',
-        name: 'Run migrations',
-        run: 'pnpm db:migrate',
-        status: 'pending'
-      },
+      { id: 'migrate', name: 'Run migrations', run: 'pnpm db:migrate', status: 'pending' },
       { id: 'start-app', name: 'Start app', run: 'pnpm dev', status: 'pending' }
     ]
   },
@@ -97,7 +92,7 @@ describe('EXEC-01/EXEC-03 runBootstrap', () => {
     expect(outcome.executedStepIds).toEqual(['install'])
   })
 
-  it('keeps run CLI execution separate from planner-only command behavior', async () => {
+  it('maps managed verification blocked states into deterministic blocked outcomes', async () => {
     const runFiniteStep = vi.fn(async () => ({
       status: 'succeeded' as const,
       exitCode: 0,
@@ -106,16 +101,20 @@ describe('EXEC-01/EXEC-03 runBootstrap', () => {
       durationMs: 10
     }))
 
-    await runBootstrap(input, {
+    const outcome = await runBootstrap(input, {
       runFiniteStep,
       runManagedStartApp: vi.fn(async () => ({
         status: 'blocked',
-        reason: 'verification timed out',
-        nextAction: 'retry',
+        reason: 'verification never reached expected status before timeout window',
+        nextAction:
+          'Ensure the app serves the declared verification target with the expected status, then retry run.',
         logs: []
       }))
     })
 
-    expect(runFiniteStep).toHaveBeenCalled()
+    expect(outcome.status).toBe('blocked')
+    expect(outcome.reason).toContain('never reached expected status')
+    expect(outcome.nextAction).toContain('expected status')
+    expect(outcome.events.some((event) => event.type === 'verification-failed')).toBe(true)
   })
 })

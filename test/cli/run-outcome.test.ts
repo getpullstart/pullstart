@@ -50,7 +50,7 @@ describe('EXEC-02/EXEC-04 run outcome reporting', () => {
     expect(rendered).toContain('Status: success')
   })
 
-  it('reports trustworthy blocked outcomes for timeout or guided boundary stops', async () => {
+  it('reports trustworthy blocked outcomes with one clear next action and caveats', async () => {
     const timeoutOutcome = await runBootstrap(
       {
         repoRoot: '/tmp/proof-repo',
@@ -64,7 +64,7 @@ describe('EXEC-02/EXEC-04 run outcome reporting', () => {
           decision: 'can-act',
           nextStepId: 'install',
           checks: [],
-          caveats: []
+          caveats: ['Auth certainty is unknown.']
         },
         verification: {
           id: 'api-health',
@@ -85,49 +85,26 @@ describe('EXEC-02/EXEC-04 run outcome reporting', () => {
         runManagedStartApp: vi.fn(async () => ({
           status: 'blocked',
           reason: 'verification timed out before success signal',
-          nextAction: 'Fix startup or connectivity issues, then retry run.',
+          nextAction: 'Fix startup readiness and retry run.',
           logs: []
         }))
       }
     )
 
     expect(timeoutOutcome.status).toBe('blocked')
-    expect(timeoutOutcome.nextAction).toContain('retry')
+    expect(timeoutOutcome.nextAction).toBe('Fix startup readiness and retry run.')
 
-    const guidedOutcome = await runBootstrap(
-      {
-        repoRoot: '/tmp/proof-repo',
-        plan: {
-          steps: [{ id: 'install', name: 'Install', run: 'pnpm install', status: 'ready' }]
-        },
-        verdict: {
-          decision: 'needs-user-action',
-          nextStepId: null,
-          checks: [],
-          requiredUserAction: 'Install Node.js 20.x',
-          caveats: []
-        }
-      },
-      {
-        runFiniteStep: vi.fn(async () => ({
-          status: 'succeeded',
-          exitCode: 0,
-          stdout: 'ok',
-          stderr: '',
-          durationMs: 10
-        }))
-      }
-    )
-
-    expect(guidedOutcome.status).toBe('blocked')
-    expect(guidedOutcome.reason).toContain('needs-user-action')
+    const rendered = renderRunOutcome(timeoutOutcome)
+    expect(rendered).toContain('Next action: Fix startup readiness and retry run.')
+    expect(rendered).toContain('Unknown: Auth certainty is unknown')
   })
 
   it('keeps reporting contract-bound without generic diagnostics expansion', () => {
     const rendered = renderRunOutcome({
       status: 'blocked',
-      reason: 'verification timed out before success signal',
-      nextAction: 'Fix startup or connectivity issues, then retry run.',
+      reason: 'verification never reached expected status before timeout window',
+      nextAction:
+        'Ensure the app serves the declared verification target with the expected status, then retry run.',
       executedStepIds: ['install', 'migrate'],
       guidedStepId: 'start-app',
       events: [
@@ -135,7 +112,7 @@ describe('EXEC-02/EXEC-04 run outcome reporting', () => {
           type: 'verification-failed',
           at: new Date().toISOString(),
           stepId: 'start-app',
-          message: 'verification timed out before success signal'
+          message: 'verification never reached expected status before timeout window'
         }
       ],
       caveats: []

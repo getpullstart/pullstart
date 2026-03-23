@@ -31,6 +31,28 @@ function keepRecentLines(lines: string[], chunk: string, max = 40) {
   }
 }
 
+function mapBlockedResult(result: Awaited<ReturnType<typeof verifyHttpTarget>>) {
+  if (result.status === 'status-mismatch') {
+    return {
+      reason: 'verification never reached expected status before timeout window',
+      nextAction:
+        'Ensure the app serves the declared verification target with the expected status, then retry run.'
+    }
+  }
+
+  if (result.status === 'timeout') {
+    return {
+      reason: 'verification timed out before success signal',
+      nextAction: 'Fix startup readiness and retry run.'
+    }
+  }
+
+  return {
+    reason: 'verification failed due to network errors',
+    nextAction: 'Fix connectivity to the declared verification target and retry run.'
+  }
+}
+
 export async function runManagedStartApp(
   repoRoot: string,
   stepCommand: string,
@@ -52,16 +74,22 @@ export async function runManagedStartApp(
       status: 'blocked',
       reason: 'verification target was already healthy before start-app; state is ambiguous',
       nextAction:
-        'Stop any existing process on the verification target and retry to prove this repo started successfully.',
-      logs: []
+        'Stop any existing process on the verification target and rerun to prove this repository startup path.',
+      logs: [],
+      details: {
+        attempts: preflight.attempts,
+        lastStatus: preflight.lastStatus
+      }
     }
   }
 
   const [command, ...args] = stepCommand.split(/\s+/)
-  const startProcess = options.startProcess ?? ((cmd, argv, cwd) => spawn(cmd, argv, { cwd, stdio: ['ignore', 'pipe', 'pipe'] }))
+  const startProcess =
+    options.startProcess ??
+    ((cmd, argv, cwd) => spawn(cmd, argv, { cwd, stdio: ['ignore', 'pipe', 'pipe'] }))
   const processRef = startProcess(command, args, repoRoot)
   const logs: string[] = []
-  let settled = false
+  let terminated = false
 
   processRef.stdout?.on('data', (chunk) => {
     keepRecentLines(logs, String(chunk))
@@ -71,14 +99,17 @@ export async function runManagedStartApp(
     keepRecentLines(logs, String(chunk))
   })
 
-  const processExit = new Promise<{
-    kind: 'exit'
-    code: number | null
-    signal: NodeJS.Signals | null
-  } | {
-    kind: 'error'
-    error: Error
-  }>((resolve) => {
+  const processExit = new Promise<
+    | {
+        kind: 'exit'
+        code: number | null
+        signal: NodeJS.Signals | null
+      }
+    | {
+        kind: 'error'
+        error: Error
+      }
+  >((resolve) => {
     processRef.once('exit', (code, signal) => {
       resolve({ kind: 'exit', code, signal })
     })
@@ -99,9 +130,9 @@ export async function runManagedStartApp(
   ])
 
   const terminate = () => {
-    if (!settled) {
+    if (!terminated) {
       processRef.kill('SIGTERM')
-      settled = true
+      terminated = true
     }
   }
 
@@ -112,7 +143,7 @@ export async function runManagedStartApp(
       return {
         status: 'blocked',
         reason: `start-app failed before verification: ${winner.result.error.message}`,
-        nextAction: 'Fix start-app command errors and retry.',
+        nextAction: 'Fix start-app command errors and retry run.',
         logs
       }
     }
@@ -120,7 +151,7 @@ export async function runManagedStartApp(
     return {
       status: 'blocked',
       reason: `start-app exited before verification (code: ${winner.result.code ?? 'null'})`,
-      nextAction: 'Inspect app logs, fix startup issues, and retry.',
+      nextAction: 'Inspect startup logs, resolve app exit cause, and retry run.',
       logs
     }
   }
@@ -134,23 +165,27 @@ export async function runManagedStartApp(
       logs,
       details: {
         attempts: winner.result.attempts,
-        durationMs: winner.result.durationMs
+        durationMs: winner.result.durationMs,
+        verificationTarget: verification.target,
+        expectStatus: verification.expect_status
       }
     }
   }
 
+  const mapped = mapBlockedResult(winner.result)
+
   return {
     status: 'blocked',
-    reason:
-      winner.result.status === 'timeout'
-        ? 'verification timed out before success signal'
-        : 'verification failed due to network errors',
-    nextAction: 'Fix startup or connectivity issues, then retry run.',
+    reason: mapped.reason,
+    nextAction: mapped.nextAction,
     logs,
     details: {
       attempts: winner.result.attempts,
       lastStatus: winner.result.lastStatus,
-      error: winner.result.error
+      error: winner.result.error,
+      verificationTarget: verification.target,
+      expectStatus: verification.expect_status,
+      resultState: winner.result.status
     }
   }
 }

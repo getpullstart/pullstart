@@ -12,10 +12,7 @@ const target = {
 
 describe('EXEC-02 verifyHttpTarget', () => {
   it('succeeds when expected status is observed within timeout', async () => {
-    const fetchImpl = vi
-      .fn()
-      .mockResolvedValueOnce({ status: 503 })
-      .mockResolvedValueOnce({ status: 200 })
+    const fetchImpl = vi.fn().mockResolvedValueOnce({ status: 503 }).mockResolvedValueOnce({ status: 200 })
 
     const result = await verifyHttpTarget(target, {
       fetchImpl: fetchImpl as unknown as typeof fetch,
@@ -28,7 +25,7 @@ describe('EXEC-02 verifyHttpTarget', () => {
     expect(result.lastStatus).toBe(200)
   })
 
-  it('times out when expected status never appears', async () => {
+  it('returns status-mismatch when only non-expected statuses are observed', async () => {
     const fetchImpl = vi.fn().mockResolvedValue({ status: 503 })
 
     const result = await verifyHttpTarget(target, {
@@ -37,7 +34,8 @@ describe('EXEC-02 verifyHttpTarget', () => {
       intervalMs: 1
     })
 
-    expect(result.status).toBe('timeout')
+    expect(result.status).toBe('status-mismatch')
+    expect(result.error).toContain('expected 200, got 503')
   })
 
   it('returns network-error when all polling attempts throw', async () => {
