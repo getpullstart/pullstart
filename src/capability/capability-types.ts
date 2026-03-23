@@ -2,6 +2,15 @@ import type { EvidenceContradiction, FactRecord, UnknownEvidence } from '../evid
 
 export type CapabilityDecision = 'can-act' | 'needs-user-action' | 'must-pause'
 
+export type CapabilityFamily =
+  | 'ready'
+  | 'ready-with-manual-step'
+  | 'blocked-by-machine-prereq'
+  | 'blocked-by-repo-gap'
+  | 'blocked-by-external-access'
+  | 'unsafe-to-execute'
+  | 'unknown-requires-review'
+
 export type CapabilityState = 'ready' | 'blocked' | 'unknown' | 'not-needed'
 
 export type CapabilityDomain =
@@ -28,6 +37,7 @@ export interface CapabilityCheck {
 
 export interface CapabilityVerdict {
   decision: CapabilityDecision
+  family: CapabilityFamily
   nextStepId: string | null
   checks: CapabilityCheck[]
   requiredUserAction?: string

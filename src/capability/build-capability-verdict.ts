@@ -4,6 +4,7 @@ import type { BootstrapPlan, PlanBlocker } from '../planner/plan-types.js'
 import type {
   CapabilityCheck,
   CapabilityDomain,
+  CapabilityFamily,
   CapabilityVerdict,
   SessionInspectionResult
 } from './capability-types.js'
@@ -155,6 +156,40 @@ function withStructuredContext(
   }
 }
 
+function deriveFamily(options: {
+  decision: CapabilityVerdict['decision']
+  nextStepId: string | null
+  checks: CapabilityCheck[]
+}): CapabilityFamily {
+  if (options.decision === 'must-pause') {
+    return 'unsafe-to-execute'
+  }
+
+  const blocked = options.checks.find((check) => check.state === 'blocked')
+  if (blocked) {
+    if (blocked.domain === 'auth' || blocked.domain === 'network') {
+      return 'blocked-by-external-access'
+    }
+
+    if (blocked.domain === 'repo') {
+      return 'blocked-by-repo-gap'
+    }
+
+    return 'blocked-by-machine-prereq'
+  }
+
+  const hasUnknown = options.checks.some((check) => check.state === 'unknown')
+  if (hasUnknown) {
+    return 'unknown-requires-review'
+  }
+
+  if (options.nextStepId === 'start-app') {
+    return 'ready-with-manual-step'
+  }
+
+  return 'ready'
+}
+
 export function buildCapabilityVerdict(
   spec: SetupSpec,
   plan: BootstrapPlan,
@@ -204,6 +239,7 @@ export function buildCapabilityVerdict(
   if (unsupportedVerify) {
     return withStructuredContext(plan, sessionInspection, {
       decision: 'must-pause',
+      family: deriveFamily({ decision: 'must-pause', nextStepId, checks }),
       nextStepId,
       checks,
       requiredUserAction: 'Update setup.spec.yaml to only use supported HTTP verification steps.',
@@ -214,6 +250,7 @@ export function buildCapabilityVerdict(
   if (!sessionInspection.permissions.repoRootWritable) {
     return withStructuredContext(plan, sessionInspection, {
       decision: 'must-pause',
+      family: deriveFamily({ decision: 'must-pause', nextStepId, checks }),
       nextStepId,
       checks,
       requiredUserAction: 'Grant write access to the repository root before continuing.',
@@ -226,6 +263,7 @@ export function buildCapabilityVerdict(
     if (firstBlocked) {
       return withStructuredContext(plan, sessionInspection, {
         decision: 'needs-user-action',
+        family: deriveFamily({ decision: 'needs-user-action', nextStepId: null, checks }),
         nextStepId: null,
         checks,
         requiredUserAction: firstBlocked.userAction ?? firstBlocked.summary,
@@ -235,6 +273,7 @@ export function buildCapabilityVerdict(
 
     return withStructuredContext(plan, sessionInspection, {
       decision: 'must-pause',
+      family: deriveFamily({ decision: 'must-pause', nextStepId: null, checks }),
       nextStepId: null,
       checks,
       requiredUserAction: 'No actionable setup step is available from the current plan.',
@@ -249,6 +288,7 @@ export function buildCapabilityVerdict(
   if (blockedForNextStep) {
     return withStructuredContext(plan, sessionInspection, {
       decision: 'needs-user-action',
+      family: deriveFamily({ decision: 'needs-user-action', nextStepId, checks }),
       nextStepId,
       checks,
       requiredUserAction:
@@ -260,6 +300,7 @@ export function buildCapabilityVerdict(
 
   return withStructuredContext(plan, sessionInspection, {
     decision: 'can-act',
+    family: deriveFamily({ decision: 'can-act', nextStepId, checks }),
     nextStepId,
     checks,
     caveats
