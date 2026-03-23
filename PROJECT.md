@@ -2,9 +2,9 @@
 
 ## Product statement
 
-Pullstart is a repo-aware onboarding product being built to read setup contracts, check the local environment, plan the shortest safe bootstrap path, execute or guide setup steps, and verify the result.
+Pullstart is an evidence-driven onboarding engine for getting a freshly cloned repo to one verified local working state with less guessing.
 
-Phase 1 now ends at a frozen contract and proof boundary: one canonical `setup.spec.yaml`, one proof-repo checklist, and one narrow MVP claim. Planner and executor implementation begins only after that surface is fixed.
+It starts from declared setup intent when available, inspects repo and machine reality, produces typed capability truth, reviews the safest path with agent assistance, runs only policy-allowed steps, and stops with a clear blocker when proof is missing.
 
 ## Target user
 
@@ -12,51 +12,75 @@ The first target user is a developer who has just cloned a repo and wants to get
 
 This user is comfortable in a terminal, but should not need deep repo history or tribal knowledge to reach a working setup.
 
-## Wedge
+## Product promise
 
-Pullstart starts with one narrow wedge:
+Pullstart starts with one narrow promise:
 
-**Contract-driven repo onboarding with agent-guided setup and verification.**
+**Evidence-driven onboarding with deterministic truth, policy-gated execution, and verification as proof.**
 
-The initial product promise is simple:
+The initial promise is simple:
 
-**Clone a repo. Let the agent get it running.**
+**Clone a repo. Get one honest outcome: verified readiness, or explicit blocker/unknown state.**
 
 ## MVP thesis
 
 - Target user: a developer onboarding into an existing application repo with non-trivial setup requirements
-- Wedge: read a declared setup contract, inspect local state, and drive the shortest safe path from clone to runnable
-- First success moment: the developer sees the repo boot locally and pass one declared verification flow, or gets a structured blocker report instead of a vague failure wall
+- Product promise: consume declared intent plus observed evidence and produce deterministic capability and execution eligibility
+- First success moment: the developer reaches one verified readiness target or receives a structured blocker/unknown outcome instead of a vague failure wall
 - First proof repo type: a Node.js API service backed by PostgreSQL with env setup, migrations, and a health endpoint
-- MVP source of truth: `setup.spec.yaml`, with docs and architecture notes staying secondary
-- Phase boundary: Phase 1 freezes the contract and proof slice; Phase 2 consumes that boundary to build the planner
+- MVP truth model: declared truth + observed repo truth + observed machine truth + runtime-observed truth + explicit inferred facts
+- Current declared-intent surface: `setup.spec.yaml` (candidate filename), with docs and architecture notes secondary
+- Phase boundary: v1.1 realignment starts from authority/evidence model before further implementation
 - Why now: more teams are using agents, but repo setup is still fragmented across README notes, shell scripts, and implicit expectations
-- Why narrower than adjacent ideas: Pullstart is not trying to cover every developer workflow or become a broad platform; it is focused on one painful transition point from clone to working local setup
+- Why narrower than adjacent ideas: Pullstart is not trying to cover every developer workflow or become a broad platform; it is focused on one painful transition point from clone to verified local setup
 
 ## Falsification check
 
 ### Assumptions that are still hypotheses
 
-- a single contract surface can cover enough real onboarding friction to beat README-only setup
-- developers will trust a setup agent if the plan is explicit, reversible where possible, and verification is clear
+- a declared intent surface plus deterministic evidence model can cover enough onboarding friction to beat README-only setup
+- developers will trust policy-gated automation if unknown and blocked outcomes are explicit
 - one proof repo type is enough to define a useful MVP before broader portability
-- common setup failures can be normalized into a small, meaningful blocker vocabulary
+- enterprise-like access failures (auth/network/permission/private deps) can be represented as first-class blocker families without broadening scope
 
 ### What would falsify or narrow the framing
 
-- if the first proof repo still needs heavy repo-specific code despite a clean contract
-- if teams refuse to maintain a setup contract because the value is too low or upkeep is too high
-- if the agent cannot reliably distinguish between machine prerequisites, service health issues, and repo-specific setup failures
-- if verification is too shallow to create trust or too expensive to run routinely
+- if deterministic evidence cannot sustain trustworthy verdicts without hidden planner-of-record behavior
+- if teams refuse declared intent maintenance because upkeep cost outweighs onboarding benefit
+- if capability verdicts collapse unknown states into fake certainty
+- if verification cannot act as trust boundary (for example, pre-healthy ownership ambiguity keeps producing false positives)
 
 ### What should remain intentionally undecided until first-repo evidence exists
 
 - whether contract authoring should be manual, generated, or mixed
-- how much repo inference should supplement the contract
-- whether executor behavior should default to fully guided, semi-automatic, or aggressively automatic
+- how aggressive inferred facts may become before crossing policy safety boundaries
+- how much repo inference should supplement declared intent before review is mandatory
+- whether executor behavior should default to guided or policy-approved auto for specific mutation classes
 - how broad the first portability layer should be beyond the proof repo type
 
-## Canonical onboarding contract surface
+## Authority model (canonical)
+
+1. Deterministic evidence system owns state, evidence provenance, capability truth, and execution eligibility.
+2. Agent review is default for explanation, ambiguity handling, and comparison, but remains advisory.
+3. Policy gate owns permission to execute.
+4. Verification owns runnable-enough proof.
+5. Blocked and unknown are first-class product outcomes.
+
+Deterministic evidence owns truth. declared intent is bounded authority. unknown and blocked outcomes are first-class.
+
+## Deterministic truth layers
+
+Pullstart must keep these truth layers explicit and inspectable:
+
+- declared truth (contract and declared intent)
+- observed repo truth
+- observed machine truth
+- runtime-observed truth
+- inferred truth (explicitly tagged and never silently upgraded to observed truth)
+
+Truth provenance must survive through verdict, planning, execution, and blocker explanation.
+
+## Current declared-intent surface
 
 Pullstart MVP currently uses `setup.spec.yaml` as the onboarding contract candidate.
 
@@ -66,12 +90,14 @@ The current Phase 1 contract boundary is:
 - one strict schema-backed contract definition
 - one canonical proof fixture for the Node.js API + PostgreSQL slice
 
-### Why it wins
+### Why it still matters
 
 - it is structured enough for reliable machine parsing
 - it stays readable in code review
-- it can express prerequisites, ordered steps, services, env expectations, and verification commands in one place
+- it can express prerequisites, ordered steps, services, env expectations, and verification targets in one place
 - it avoids treating onboarding as unstructured prose or hidden shell logic
+
+But this surface is authority for declared intent only. It is not authority for runtime reality or execution safety by itself.
 
 ### Secondary surfaces
 
@@ -79,7 +105,19 @@ The current Phase 1 contract boundary is:
 - `ONBOARDING.md`: optional human runbook or repo-specific explanation
 - `AGENTS.md`: optional agent behavior notes and operational conventions
 
-In MVP, those files are secondary, derived, or explanatory. `setup.spec.yaml` is the source of truth for setup intent.
+In MVP, those files are secondary, derived, or explanatory. `setup.spec.yaml` is authority for declared setup intent, not full runtime truth.
+
+## Architecture sequence (v1.1 planning truth)
+
+1. authority model
+2. evidence model
+3. capability verdict
+4. policy-gated planning
+5. policy-gated execution
+6. verification and blocker truth
+7. one proof repo hardening
+
+This sequence replaces planner-first storytelling and keeps deterministic truth ahead of narrative.
 
 ## First proof scenario
 
@@ -93,37 +131,29 @@ A developer has cloned the repo on a machine that may be missing one or more pre
 
 ### What Pullstart reads
 
-- Phase 1 defines this boundary in docs and schema only:
-  - `setup.spec.yaml`
-  - package manager and runtime metadata
-  - `.env.example`
-  - repo hints such as `package.json`, Docker files, and migration scripts
+- declared setup intent (`setup.spec.yaml` when available)
+- repo-observed evidence (`package.json`, lockfiles, env templates, scripts, health targets)
+- machine-observed evidence (tools, versions, env presence, reachability, access signals)
 
 ### What Pullstart decides
 
-- Later implementation phases decide:
-  - whether the machine meets declared prerequisites
-  - whether local services should be started directly or via Docker
-  - which bootstrap steps are mandatory before app launch
-  - whether the success path is reachable now or blocked
+- typed capability verdict (ready / manual-required / blocked / unsafe / unknown-review-required)
+- policy eligibility per step (auto / ask-first / manual-only / forbidden)
+- whether verification can prove readiness or must stop with blocker/unknown
 
 ### What Pullstart runs or guides
 
-- Phase 2 and Phase 3 are expected to cover:
-  - toolchain checks
-  - env file setup guidance
-  - dependency install
-  - local service start commands
-  - database migration
-  - application start command
-  - verification command or health check
+- only policy-allowed high-confidence steps
+- bounded execution with runtime evidence capture
+- explicit stop-on-failure and stop-on-ambiguity behavior
 
 ### Meaningful MVP win
 
-Pullstart produces a safe ordered plan, executes or guides the required setup flow, and ends in one of two trustworthy states:
+Pullstart produces a safe policy-gated path and ends in one of three trustworthy states:
 
-- the app starts locally and the declared health check passes
-- the setup stops with a structured blocker report that clearly identifies the missing prerequisite or failing step
+- verified runnable-enough state
+- explicit blocker with evidence and next action
+- explicit unknown state requiring review/manual step
 
 That is the first proof scenario, not an already-earned portability claim.
 
@@ -133,12 +163,14 @@ The implementation-facing checklist for that proof repo is now explicit as well,
 
 1. The user-facing workflow must feel simple.
 2. Complexity can exist in the system, but not in the default path.
-3. Repo contracts are the source of truth.
-4. Structured spec plus human-readable docs beats markdown-only or heuristics-only onboarding.
+3. Deterministic evidence owns truth; agent narrative does not.
+4. Declared intent plus observed evidence beats markdown-only or heuristic-only onboarding.
 5. The first release solves onboarding and setup, not all repo intelligence.
 6. MVP usefulness on one real repo matters more than premature generality.
-7. Future platform ideas may be documented, but not implemented in the MVP.
-8. Deferred scope must be named honestly.
+7. Unknown and blocked outcomes are valid product results.
+8. Verification is proof; command completion is not proof.
+9. Future platform ideas may be documented, but not implemented in the MVP.
+10. Deferred scope must be named honestly.
 
 ## Explicit non-goals
 
@@ -154,6 +186,19 @@ Pullstart MVP is not:
 - a generic project execution engine
 - a broad developer platform repositioning
 - a full autonomous coding agent replacement
+
+## Enterprise-aware MVP blocker spine
+
+Without broadening scope, Pullstart must treat these as first-class blocker families:
+
+- auth absent
+- auth present but unusable
+- VPN or network unreachable
+- private registry unreachable
+- registry auth failed
+- permission denied
+- sibling or private dependency missing
+- unresolved until execution
 
 ## MVP success definition
 

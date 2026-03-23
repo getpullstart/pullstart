@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Pullstart V1 is a repo-aware onboarding engine for developers who need to get a cloned repository to one verified runnable state without decoding scattered setup lore. It reads an onboarding contract if present, inspects repo and machine reality, produces a capability verdict, executes or guides the shortest safe bootstrap path, and verifies one explicit runnable success signal.
+Pullstart V1 is an evidence-driven onboarding engine for developers who need to get a cloned repository to one verified runnable state without decoding scattered setup lore. It starts from declared setup intent when available, inspects repo and machine reality, produces typed capability truth (including blocked/unknown), executes only policy-allowed steps, and verifies one explicit runnable success signal.
 
 It is not a broad platform, a generic repo analysis product, or a memory product. The working V1 target is intentionally narrow and explicitly revisable with evidence.
 
@@ -10,13 +10,16 @@ It is not a broad platform, a generic repo analysis product, or a memory product
 
 Pullstart V1 follows this methodology:
 
-1. Read the onboarding contract if present.
-2. Inspect repo and machine reality.
-3. Produce a capability verdict.
-4. Execute or guide the shortest safe bootstrap path.
-5. Verify one clear runnable success signal.
+1. Read declared setup intent when available.
+2. Inspect deterministic evidence (repo + machine).
+3. Produce a typed capability verdict.
+4. Plan and review the safest policy-allowed path.
+5. Execute only policy-gated eligible steps.
+6. Verify one explicit runnable readiness target.
 
-This is not pure contract-first, pure discovery-first, or docs-first. Discovery can assist, but it cannot silently become the truth owner.
+This is not contract-only, planner-only, or docs-first. The deterministic evidence system owns truth; agent review is default but advisory.
+
+Deterministic evidence owns truth. declared intent is bounded authority. unknown and blocked outcomes are first-class.
 
 ## Core Value
 
@@ -41,8 +44,8 @@ Get a real repo from clone to working local setup faster and with fewer dead end
 
 ### Active
 
-- [ ] Define v1.1 requirements and roadmap (`/gsd-new-milestone`).
-- [ ] Evaluate backlog item `999.2` for promotion into active milestone scope.
+- [ ] Plan and execute Phase 1 realignment: authority/evidence/capability/policy/verification framing correction.
+- [ ] Evaluate backlog item `999.2` for promotion into post-realignment scope.
 
 ### Out of Scope
 
@@ -87,6 +90,8 @@ Get a real repo from clone to working local setup faster and with fewer dead end
 | Model capability verdict explicitly before execution | Auth, network, toolchain, and permission truth should gate action instead of hiding uncertainty | ✓ Good |
 | Require one locked proof repo commit with both success and blocked evidence before Phase 5 closeout | Prevents portability theater and keeps claims evidence-traceable | ✓ Good |
 | Treat pre-healthy verification targets as blocked ambiguity instead of success | Avoids false-positive proof claims when startup ownership is unclear | ✓ Good |
+| Deterministic evidence system owns truth and execution eligibility; agent assistance remains advisory | Prevents hidden planner-of-record behavior and keeps safety/provenance enforceable | ✓ Good |
+| Verification is trust boundary; blocked and unknown remain first-class outcomes | Avoids false certainty from “commands ran” and preserves honest product behavior | ✓ Good |
 
 ## Phase 5 proof evidence framing
 
@@ -112,4 +117,4 @@ Get a real repo from clone to working local setup faster and with fewer dead end
 - Pre-execution registry auth/network checks remain unknown until runtime commands execute.
 
 ---
-*Last updated: 2026-03-23 after v1.0 milestone archive*
+*Last updated: 2026-03-23 after evidence-driven realignment update*
