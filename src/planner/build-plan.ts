@@ -1,25 +1,79 @@
 import type { SetupSpec } from '../contract/setup-spec-types.js'
+import type { EvidenceContradiction, FactRecord } from '../evidence/evidence-types.js'
 import type { MachineInspectionResult } from '../inspect/machine-inspector.js'
 import type { RepoInspectionResult } from '../inspect/repo-inspector.js'
 import type {
   BootstrapPlan,
+  PlanFactRef,
   PlanBlocker,
   PlanStatus,
   SelectedServiceOption
 } from './plan-types.js'
 
+function toPlanFactRef(fact: FactRecord): PlanFactRef {
+  return {
+    id: fact.id,
+    source: fact.source,
+    subject: fact.subject,
+    state: fact.state,
+    summary: fact.summary,
+    affectsStepIds: fact.affectsStepIds
+  }
+}
+
 function makeBlocker(
   id: string,
   scope: PlanBlocker['scope'],
   message: string,
-  stepIds: string[]
+  stepIds: string[],
+  metadata: Pick<PlanBlocker, 'factRefs' | 'contradictionRefs'> = {}
 ): PlanBlocker {
-  return { id, scope, message, stepIds }
+  return {
+    id,
+    scope,
+    message,
+    stepIds,
+    ...metadata
+  }
+}
+
+function collectContradictions(repoFacts: FactRecord[]): EvidenceContradiction[] {
+  const contradictions: EvidenceContradiction[] = []
+  const declaredServiceOptions = repoFacts.filter(
+    (fact) =>
+      fact.source === 'declared' &&
+      fact.subject.startsWith('service-option.') &&
+      fact.subject.endsWith('.declared')
+  )
+
+  for (const declared of declaredServiceOptions) {
+    const observed = repoFacts.find(
+      (fact) =>
+        fact.subject.replace('.viability', '') === declared.subject.replace('.declared', '') &&
+        fact.source === 'inferred'
+    )
+    if (!observed || observed.state !== 'missing') {
+      continue
+    }
+
+    const optionId = declared.subject.split('.')[2]
+    contradictions.push({
+      id: `contradiction:service-option:${optionId}:declared-vs-observed`,
+      declaredFactId: declared.id,
+      observedFactId: observed.id,
+      summary: `Declared service option ${optionId} is not currently viable from observed repo evidence`,
+      affectsStepIds: Array.from(new Set([...declared.affectsStepIds, ...observed.affectsStepIds]))
+    })
+  }
+
+  return contradictions
 }
 
 function selectServiceOptions(
   repoInspection: RepoInspectionResult,
-  machineInspection: MachineInspectionResult
+  machineInspection: MachineInspectionResult,
+  contradictions: EvidenceContradiction[],
+  factMap: Map<string, FactRecord>
 ) {
   const selected: SelectedServiceOption[] = []
   const branchBlockers: PlanBlocker[] = []
@@ -68,12 +122,27 @@ function selectServiceOptions(
       })
     }
 
+    const serviceContradictions = contradictions.filter((contradiction) =>
+      contradiction.affectsStepIds.some((stepId) => ['start-postgres', 'migrate', 'start-app'].includes(stepId))
+    )
+    const contradictionRefs = serviceContradictions.map((contradiction) => contradiction.id)
+    const contradictionFacts = serviceContradictions.flatMap((contradiction) =>
+      [contradiction.declaredFactId, contradiction.observedFactId]
+        .map((id) => factMap.get(id))
+        .filter((fact): fact is FactRecord => Boolean(fact))
+        .map(toPlanFactRef)
+    )
+
     branchBlockers.push(
       makeBlocker(
         `service:${service}`,
         'service',
         `No viable service branch is currently ready for ${service}.`,
-        ['start-postgres', 'migrate', 'start-app']
+        ['start-postgres', 'migrate', 'start-app'],
+        {
+          factRefs: contradictionFacts,
+          contradictionRefs
+        }
       )
     )
   }
@@ -90,6 +159,14 @@ function blockersForPlan(
   selectedOptions: SelectedServiceOption[]
 ) {
   const blockers: PlanBlocker[] = []
+  const repoMissingFactIdByEvidence: Record<string, string> = {
+    'package-json': 'fact:repo:package-json',
+    'env-example': 'fact:repo:env-example',
+    'install-step': 'fact:repo:install-step-declared',
+    'migration-step': 'fact:repo:migration-step-declared',
+    'start-step': 'fact:repo:start-step-declared',
+    'verify-target': 'fact:repo:verify-target'
+  }
 
   for (const missing of repoInspection.missingEvidence) {
     const stepIds =
@@ -106,7 +183,16 @@ function blockersForPlan(
         `repo:${missing}`,
         'repo',
         `Repo evidence is missing: ${missing}.`,
-        stepIds
+        stepIds,
+        {
+          factRefs: repoInspection.facts
+            .filter((fact) => fact.id === repoMissingFactIdByEvidence[missing])
+            .map((fact) => ({
+              ...fact,
+              state: 'missing'
+            }))
+            .map(toPlanFactRef)
+        }
       )
     )
   }
@@ -127,7 +213,16 @@ function blockersForPlan(
         `tool:${tool.name}`,
         'tool',
         `Required tool ${tool.name} does not satisfy ${tool.expectedRange}.`,
-        stepIds
+        stepIds,
+        {
+          factRefs: machineInspection.facts
+            .filter((fact) => fact.id === `fact:machine:tool:${tool.name}`)
+            .map((fact) => ({
+              ...fact,
+              state: 'missing'
+            }))
+            .map(toPlanFactRef)
+        }
       )
     )
   }
@@ -139,7 +234,16 @@ function blockersForPlan(
           `env-file:${envFile.path}`,
           'env-file',
           `Missing env file ${envFile.path}; expected template ${envFile.example}.`,
-          ['migrate', 'start-app']
+          ['migrate', 'start-app'],
+          {
+            factRefs: machineInspection.facts
+              .filter((fact) => fact.id === `fact:machine:env-file:${envFile.path}`)
+              .map((fact) => ({
+                ...fact,
+                state: 'missing'
+              }))
+              .map(toPlanFactRef)
+          }
         )
       )
     }
@@ -152,7 +256,16 @@ function blockersForPlan(
           `env-var:${envVar.name}`,
           'env-var',
           `Required env var ${envVar.name} is missing from the runtime env file.`,
-          ['migrate', 'start-app']
+          ['migrate', 'start-app'],
+          {
+            factRefs: machineInspection.facts
+              .filter((fact) => fact.id === `fact:machine:env-var:${envVar.name}`)
+              .map((fact) => ({
+                ...fact,
+                state: 'missing'
+              }))
+              .map(toPlanFactRef)
+          }
         )
       )
     }
@@ -167,7 +280,16 @@ function blockersForPlan(
           `service:${service.serviceName}`,
           'service',
           `Service ${service.serviceName} is not reachable at ${service.target}.`,
-          ['migrate', 'start-app']
+          ['migrate', 'start-app'],
+          {
+            factRefs: machineInspection.facts
+              .filter((fact) => fact.id === `fact:machine:service:${service.serviceName}`)
+              .map((fact) => ({
+                ...fact,
+                state: 'missing'
+              }))
+              .map(toPlanFactRef)
+          }
         )
       )
     }
@@ -185,7 +307,10 @@ export function buildPlan(
   repoInspection: RepoInspectionResult,
   machineInspection: MachineInspectionResult
 ): BootstrapPlan {
-  const serviceSelection = selectServiceOptions(repoInspection, machineInspection)
+  const factRefs: FactRecord[] = [...repoInspection.facts, ...machineInspection.facts]
+  const factMap = new Map(factRefs.map((fact) => [fact.id, fact]))
+  const contradictions = collectContradictions(repoInspection.facts)
+  const serviceSelection = selectServiceOptions(repoInspection, machineInspection, contradictions, factMap)
   const blockers = [
     ...serviceSelection.branchBlockers,
     ...blockersForPlan(repoInspection, machineInspection, serviceSelection.selected)
@@ -240,11 +365,17 @@ export function buildPlan(
       .filter((service) => service.reachable)
       .map((service) => `service:${service.serviceName}`)
   ]
+  const satisfiedFactRefs = factRefs
+    .filter((fact) => fact.state === 'satisfied')
+    .map(toPlanFactRef)
 
   return {
     blockers,
     selectedServiceOptions: serviceSelection.selected,
     satisfiedFacts,
+    satisfiedFactRefs,
+    factRefs,
+    contradictions,
     steps
   }
 }
