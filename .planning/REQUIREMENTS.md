@@ -8,7 +8,7 @@
 ### Contract Model
 
 - [x] **CNTR-01**: Pullstart uses `setup.spec.yaml` as the canonical onboarding contract surface for MVP.
-- [x] **CNTR-02**: The contract can declare required tools, services, env expectations, ordered setup steps, and verification checks.
+- [x] **CNTR-02**: The contract can declare required tools, services, env expectations, ordered setup steps, and verification checks for the first proof repo.
 - [x] **CNTR-03**: The contract remains reviewable by humans and reliable for agent parsing.
 
 ### Planning
@@ -32,7 +32,7 @@
 ### Proof And Scope Honesty
 
 - [ ] **PROOF-01**: Pullstart is validated on one Node.js API + PostgreSQL proof repo before broader portability claims.
-- [ ] **PROOF-02**: Public docs and planning artifacts clearly separate MVP from future platform ideas.
+- [ ] **PROOF-02**: Public docs and planning artifacts clearly separate the MVP contract and proof slice from future platform ideas.
 
 ## v2 Requirements
 

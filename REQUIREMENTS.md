@@ -8,65 +8,40 @@ They are intentionally scoped to one onboarding contract surface, one proof repo
 
 ## Core requirements
 
-### R1. Canonical contract support
+### Contract boundary
 
-Pullstart must parse a canonical onboarding contract named `setup.spec.yaml`.
+- **CNTR-01**: Pullstart uses `setup.spec.yaml` as the canonical onboarding contract surface for MVP.
+- **CNTR-02**: The contract can declare required tools, services, env expectations, ordered setup steps, and verification checks for the first proof repo.
+- **CNTR-03**: The contract remains reviewable by humans and reliable for agent parsing.
 
-The contract must be able to declare, at minimum:
+### Planner requirements
 
-- required tools and versions
-- required services
-- environment file expectations
-- ordered bootstrap steps
-- verification commands or checks
-- fallback notes for special cases
+- **PLAN-01**: Pullstart inspects repo evidence relevant to the proof repo, including runtime metadata, package manager signals, env templates, service configuration hints, and declared verification paths.
+- **PLAN-02**: Pullstart inspects the local machine for prerequisites declared by the contract, including missing tools, incompatible versions, unavailable services, and missing env setup.
+- **PLAN-03**: Pullstart produces a stepwise bootstrap plan that respects dependency order, identifies blockers before destructive work, and keeps the shortest safe path visible.
 
-### R2. Repo-aware inspection
+### Execution and verification requirements
 
-Pullstart must inspect repo evidence relevant to the proof scenario, including runtime metadata, package manager signals, env templates, service configuration hints, and declared verification paths.
+- **EXEC-01**: Pullstart can run or guide the critical setup sequence declared by the contract.
+- **EXEC-02**: Pullstart verifies one declared success path for the proof repo and reports what passed, failed, remained blocked, or still needs manual action.
+- **EXEC-03**: Pullstart stops in a trustworthy blocked state when setup cannot continue safely.
 
-### R3. Machine-state inspection
+### Blocker reporting requirements
 
-Pullstart must inspect the local machine for prerequisites declared by the contract, including missing tools, incompatible versions, unavailable services, and missing env setup.
+- **BLKR-01**: Pullstart classifies failed setup into a small actionable blocker vocabulary.
+- **BLKR-02**: Blocker output distinguishes machine prerequisites, service health issues, and repo-specific setup failures.
+- **BLKR-03**: Blocker reports include the next useful step instead of a raw failure wall alone.
 
-### R4. Ordered setup planning
+### Proof and scope honesty
 
-Pullstart must produce a stepwise bootstrap plan that:
-
-- respects dependency order
-- identifies required versus optional steps
-- names blockers before destructive work
-- keeps the shortest safe path visible to the user
-
-### R5. Guided or automatic execution
-
-Pullstart must support running or guiding the critical setup sequence declared by the contract.
-
-MVP execution must prioritize safety and clarity over aggressive automation.
-
-### R6. Verification
-
-Pullstart must verify one declared success path for the proof repo.
-
-Verification must report:
-
-- what passed
-- what failed
-- what remained blocked
-- what still requires manual action
-
-### R7. Structured blocker reporting
-
-When setup cannot complete, Pullstart must classify the blocker into a small actionable category and explain the next useful step.
-
-### R8. Scope honesty
-
-Pullstart documentation and behavior must not imply support for arbitrary repos, generalized agent orchestration, or broad platform features that the MVP does not actually deliver.
+- **PROOF-01**: MVP proof is one Node.js API + PostgreSQL proof repo before broader portability claims.
+- **PROOF-02**: Public docs and planning artifacts clearly separate the MVP contract/proof slice from deferred platform ideas.
 
 ## Constraints
 
 - MVP is optimized for one real proof repo type before broader portability
 - `setup.spec.yaml` is the only canonical onboarding contract surface in MVP
+- the proof repo is a Node.js API backed by PostgreSQL
 - repo docs may supplement the contract but must not replace it as source of truth
 - heuristics may assist inspection but must not silently override declared contract intent
 - execution should avoid destructive surprises and make key actions understandable
@@ -106,7 +81,7 @@ Pullstart must:
 
 ## Deferred requirements
 
-These are explicitly out of MVP scope:
+These are explicitly out of MVP scope and must not leak into the proof repo promise:
 
 - self-learning memory systems
 - cross-repo shared knowledge graphs

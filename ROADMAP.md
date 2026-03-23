@@ -9,45 +9,45 @@ This roadmap is built around one believable MVP:
 Every MVP phase must support:
 
 - the `setup.spec.yaml` contract surface
-- the first proof scenario
+- the first Node.js API + PostgreSQL proof repo
 - a trustworthy setup result or blocker report
 
-## Phase 1 — Product framing and contract model
+## Phase 1 — Contract model and MVP slice
 
 ### Purpose
 
-Define the product sharply, lock the MVP thesis, and establish `setup.spec.yaml` as the canonical onboarding contract.
+Freeze the MVP contract, proof repo boundary, and public story so later implementation phases build against one stable surface.
 
 ### Scope
 
-- product framing and README
+- product framing and README alignment
 - MVP thesis and falsification check
 - explicit non-goals
-- contract principles
-- first `setup.spec.yaml` example schema and examples
-- first proof scenario documentation
+- strict `setup.spec.yaml` schema and canonical example
+- first proof scenario and proof checklist
+- roadmap and requirements alignment around the same narrow scope
 
 ### Success condition
 
-The repo clearly states what Pullstart is, what it is not, what contract it reads, and what the first meaningful proof looks like.
+The repo clearly states what Pullstart is, what it is not, what contract it reads, what proof repo it targets, and where Phase 2 begins.
 
 ## Phase 2 — Minimal onboarding planner
 
 ### Purpose
 
-Turn repo contracts plus machine inspection into an ordered bootstrap plan.
+Consume the frozen contract and proof checklist, inspect repo and machine state, and turn that evidence into an ordered bootstrap plan.
 
 ### Scope
 
-- parse minimal `setup.spec.yaml`
+- parse the frozen MVP `setup.spec.yaml`
 - inspect local machine prerequisites
-- inspect repo metadata needed for the proof scenario
+- inspect repo metadata needed for the proof repo checklist
 - detect missing tools, env setup gaps, and service prerequisites
 - produce a stepwise plan with dependency ordering
 
 ### Success condition
 
-Given the proof repo contract, Pullstart can explain the shortest safe bootstrap path before taking action.
+Given the proof repo contract, Pullstart can explain the shortest safe bootstrap path before taking action without redefining the contract or broadening scope.
 
 ## Phase 3 — Minimal executor and verifier
 
