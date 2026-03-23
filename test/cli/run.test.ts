@@ -13,7 +13,37 @@ describe('run CLI', () => {
       executedStepIds: ['install', 'migrate'],
       guidedStepId: 'start-app',
       events: [],
-      caveats: []
+      caveats: [],
+      runtimeEvidence: [
+        {
+          id: 'fact:runtime:step:install:succeeded',
+          source: 'runtime-observed',
+          subject: 'step.install.result',
+          state: 'satisfied',
+          summary: 'step install completed',
+          affectsStepIds: ['install']
+        }
+      ],
+      factRefs: [
+        {
+          id: 'fact:repo:package-json',
+          source: 'observed-repo',
+          subject: 'repo.package-json',
+          state: 'satisfied',
+          summary: 'package.json exists',
+          affectsStepIds: ['install']
+        }
+      ],
+      unknownEvidence: [
+        {
+          id: 'unknown:auth:registry',
+          source: 'inferred',
+          scope: 'auth',
+          state: 'unresolved-until-execution',
+          rationale: 'auth unknown pre-execution',
+          affectsStepIds: ['install']
+        }
+      ]
     }
 
     const runBootstrap = vi.fn(async () => outcome)
@@ -61,6 +91,8 @@ describe('run CLI', () => {
 
     expect(runBootstrap).toHaveBeenCalledTimes(1)
     expect(writes.join('')).toContain('"status": "blocked"')
+    expect(writes.join('')).toContain('"runtimeEvidence"')
+    expect(writes.join('')).toContain('"unknownEvidence"')
     expect(writes.join('')).toContain('rendered run outcome')
   })
 })

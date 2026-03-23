@@ -23,7 +23,36 @@ describe('verdict CLI', () => {
       nextStepId: 'install',
       requiredUserAction: 'Install Node.js 20.x',
       checks: [],
-      caveats: ['Network reachability is unknown.']
+      caveats: ['Network reachability is unknown.'],
+      factRefs: [
+        {
+          id: 'fact:repo:package-json',
+          source: 'observed-repo',
+          subject: 'repo.package-json',
+          state: 'satisfied',
+          summary: 'package.json exists',
+          affectsStepIds: ['install']
+        }
+      ],
+      contradictions: [
+        {
+          id: 'contradiction:service-option:docker-compose:declared-vs-observed',
+          declaredFactId: 'fact:repo:service-option:postgres:docker-compose:declared',
+          observedFactId: 'fact:repo:service-option:postgres:docker-compose:viability',
+          summary: 'Declared compose option is not currently viable from observed evidence',
+          affectsStepIds: ['start-postgres', 'migrate', 'start-app']
+        }
+      ],
+      unknownEvidence: [
+        {
+          id: 'unknown:network:registry',
+          source: 'inferred',
+          scope: 'network',
+          state: 'unresolved-until-execution',
+          rationale: 'Network reachability is unknown.',
+          affectsStepIds: ['install']
+        }
+      ]
     }))
     const renderCapabilityVerdict = vi.fn(() =>
       [
@@ -65,6 +94,9 @@ describe('verdict CLI', () => {
     expect(renderCapabilityVerdict).toHaveBeenCalledTimes(1)
     expect(forbidden).not.toHaveBeenCalled()
     expect(output).toContain('"decision": "needs-user-action"')
+    expect(output).toContain('"factRefs"')
+    expect(output).toContain('"contradictions"')
+    expect(output).toContain('"unknownEvidence"')
     expect(output).toContain('Next action: Install Node.js 20.x')
     expect(output).toContain('Unknown: Network reachability is unknown')
   })

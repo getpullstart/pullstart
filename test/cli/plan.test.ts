@@ -15,6 +15,35 @@ describe('plan CLI', () => {
       blockers: [],
       selectedServiceOptions: [],
       satisfiedFacts: [],
+      satisfiedFactRefs: [
+        {
+          id: 'fact:repo:package-json',
+          source: 'observed-repo',
+          subject: 'repo.package-json',
+          state: 'satisfied',
+          summary: 'package.json exists',
+          affectsStepIds: ['install']
+        }
+      ],
+      factRefs: [
+        {
+          id: 'fact:repo:package-json',
+          source: 'observed-repo',
+          subject: 'repo.package-json',
+          state: 'satisfied',
+          summary: 'package.json exists',
+          affectsStepIds: ['install']
+        }
+      ],
+      contradictions: [
+        {
+          id: 'contradiction:service-option:docker-compose:declared-vs-observed',
+          declaredFactId: 'fact:repo:service-option:postgres:docker-compose:declared',
+          observedFactId: 'fact:repo:service-option:postgres:docker-compose:viability',
+          summary: 'Declared compose option is not currently viable from observed evidence',
+          affectsStepIds: ['start-postgres', 'migrate', 'start-app']
+        }
+      ],
       steps: []
     }))
     const renderPlan = vi.fn(() => 'rendered plan')
@@ -44,6 +73,8 @@ describe('plan CLI', () => {
     expect(renderPlan).toHaveBeenCalledTimes(1)
     expect(forbidden).not.toHaveBeenCalled()
     expect(writes.join('')).toContain('"steps": []')
+    expect(writes.join('')).toContain('"factRefs"')
+    expect(writes.join('')).toContain('"contradictions"')
     expect(writes.join('')).toContain('rendered plan')
   })
 })
