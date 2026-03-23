@@ -105,9 +105,14 @@ function machineChecks(machineInspection: MachineInspectionResult): CapabilityCh
   return checks
 }
 
-function unknownChecks(nextStepId: string | null): CapabilityCheck[] {
+function unknownChecks(
+  nextStepId: string | null,
+  sessionInspection: SessionInspectionResult
+): CapabilityCheck[] {
   const authRelevant = nextStepId === 'install'
   const networkRelevant = nextStepId === 'install'
+  const authUnknown = sessionInspection.unknownEvidence.find((evidence) => evidence.scope === 'auth')
+  const networkUnknown = sessionInspection.unknownEvidence.find((evidence) => evidence.scope === 'network')
 
   return [
     {
@@ -117,7 +122,9 @@ function unknownChecks(nextStepId: string | null): CapabilityCheck[] {
       summary: authRelevant
         ? 'Registry authentication is not provable before attempting install'
         : 'Auth check is not needed for the next step',
-      evidence: ['pre-execution state'],
+      evidence: [authUnknown?.id ?? 'pre-execution state'],
+      factRefs: authUnknown ? [authUnknown.id] : undefined,
+      unknownState: authRelevant ? 'unresolved-until-execution' : undefined,
       affectsStepIds: authRelevant ? [nextStepId] : []
     },
     {
@@ -127,10 +134,25 @@ function unknownChecks(nextStepId: string | null): CapabilityCheck[] {
       summary: networkRelevant
         ? 'Network reachability for package install is unknown before execution'
         : 'Network check is not needed for the next step',
-      evidence: ['pre-execution state'],
+      evidence: [networkUnknown?.id ?? 'pre-execution state'],
+      factRefs: networkUnknown ? [networkUnknown.id] : undefined,
+      unknownState: networkRelevant ? 'unresolved-until-execution' : undefined,
       affectsStepIds: networkRelevant ? [nextStepId] : []
     }
   ]
+}
+
+function withStructuredContext(
+  plan: BootstrapPlan,
+  sessionInspection: SessionInspectionResult,
+  payload: Omit<CapabilityVerdict, 'factRefs' | 'contradictions' | 'unknownEvidence'>
+): CapabilityVerdict {
+  return {
+    ...payload,
+    factRefs: [...(plan.factRefs ?? []), ...sessionInspection.facts],
+    contradictions: plan.contradictions ?? [],
+    unknownEvidence: sessionInspection.unknownEvidence
+  }
 }
 
 export function buildCapabilityVerdict(
@@ -152,6 +174,8 @@ export function buildCapabilityVerdict(
       state: 'blocked' as const,
       summary: blocker.message,
       evidence: [blocker.id],
+      factRefs: blocker.factRefs?.map((factRef) => factRef.id),
+      contradictionRefs: blocker.contradictionRefs,
       affectsStepIds: blocker.stepIds,
       userAction: blockerAction(blocker)
     })),
@@ -169,7 +193,7 @@ export function buildCapabilityVerdict(
         ? undefined
         : 'Grant write access to the repository root before continuing.'
     },
-    ...unknownChecks(nextStepId)
+    ...unknownChecks(nextStepId, sessionInspection)
   ]
 
   const caveats = checks
@@ -178,44 +202,44 @@ export function buildCapabilityVerdict(
 
   const unsupportedVerify = spec.verify.some((step) => (step as { type?: string }).type !== 'http')
   if (unsupportedVerify) {
-    return {
+    return withStructuredContext(plan, sessionInspection, {
       decision: 'must-pause',
       nextStepId,
       checks,
       requiredUserAction: 'Update setup.spec.yaml to only use supported HTTP verification steps.',
       caveats
-    }
+    })
   }
 
   if (!sessionInspection.permissions.repoRootWritable) {
-    return {
+    return withStructuredContext(plan, sessionInspection, {
       decision: 'must-pause',
       nextStepId,
       checks,
       requiredUserAction: 'Grant write access to the repository root before continuing.',
       caveats
-    }
+    })
   }
 
   if (!nextStepId) {
     const firstBlocked = checks.find((check) => check.state === 'blocked')
     if (firstBlocked) {
-      return {
+      return withStructuredContext(plan, sessionInspection, {
         decision: 'needs-user-action',
         nextStepId: null,
         checks,
         requiredUserAction: firstBlocked.userAction ?? firstBlocked.summary,
         caveats
-      }
+      })
     }
 
-    return {
+    return withStructuredContext(plan, sessionInspection, {
       decision: 'must-pause',
       nextStepId: null,
       checks,
       requiredUserAction: 'No actionable setup step is available from the current plan.',
       caveats
-    }
+    })
   }
 
   const blockedForNextStep = checks.find(
@@ -223,7 +247,7 @@ export function buildCapabilityVerdict(
   )
 
   if (blockedForNextStep) {
-    return {
+    return withStructuredContext(plan, sessionInspection, {
       decision: 'needs-user-action',
       nextStepId,
       checks,
@@ -231,13 +255,13 @@ export function buildCapabilityVerdict(
         blockedForNextStep.userAction ??
         `Resolve ${blockedForNextStep.id} before attempting ${nextStepId}.`,
       caveats
-    }
+    })
   }
 
-  return {
+  return withStructuredContext(plan, sessionInspection, {
     decision: 'can-act',
     nextStepId,
     checks,
     caveats
-  }
+  })
 }

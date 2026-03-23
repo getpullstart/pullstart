@@ -134,6 +134,8 @@ describe('runtime misconfiguration guidance clarity', () => {
 
     const verdictOutput = verdictWrites.join('')
     expect((verdictOutput.match(/^Next action:/gm) ?? []).length).toBe(1)
+    expect(verdictOutput).toContain('unresolved-until-execution')
+    expect(verdictOutput).toContain('unknown:auth:registry')
 
     if (verdictOutput.includes('Caveats:')) {
       expect(verdictOutput).toContain('Unknown:')

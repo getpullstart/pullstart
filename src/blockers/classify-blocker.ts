@@ -22,6 +22,15 @@ function classifyToolLike(scope: PlanBlocker['scope']): ClassifiedBlocker | null
 }
 
 export function classifyPlannerBlocker(blocker: PlanBlocker): ClassifiedBlocker {
+  if (blocker.contradictionRefs && blocker.contradictionRefs.length > 0) {
+    return {
+      category: 'repo-setup',
+      label: 'Repo setup',
+      nextAction:
+        'Resolve declared-versus-observed contradiction evidence before continuing and rerun Pullstart.'
+    }
+  }
+
   const toolLike = classifyToolLike(blocker.scope)
   if (toolLike) {
     return toolLike

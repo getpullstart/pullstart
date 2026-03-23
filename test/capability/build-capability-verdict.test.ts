@@ -15,6 +15,9 @@ function createPlan(overrides?: Partial<BootstrapPlan>): BootstrapPlan {
     blockers: [],
     selectedServiceOptions: [],
     satisfiedFacts: [],
+    satisfiedFactRefs: [],
+    factRefs: [],
+    contradictions: [],
     steps: [
       {
         id: 'install',
@@ -86,6 +89,34 @@ function createSession(overrides?: Partial<SessionInspectionResult>): SessionIns
     repoRoot: '/tmp/proof-repo',
     permissions: { repoRootWritable: true },
     unknowns: ['auth', 'network'],
+    unknownEvidence: [
+      {
+        id: 'unknown:auth:registry',
+        source: 'inferred',
+        scope: 'auth',
+        state: 'unresolved-until-execution',
+        rationale: 'registry authentication cannot be proven until dependency install is attempted',
+        affectsStepIds: ['install']
+      },
+      {
+        id: 'unknown:network:registry',
+        source: 'inferred',
+        scope: 'network',
+        state: 'unresolved-until-execution',
+        rationale: 'network reachability for package install cannot be proven pre-execution',
+        affectsStepIds: ['install']
+      }
+    ],
+    facts: [
+      {
+        id: 'fact:session:repo-root-writable',
+        source: 'observed-machine',
+        subject: 'permissions.repoRootWritable',
+        state: 'satisfied',
+        summary: 'Repo root is writable',
+        affectsStepIds: ['install', 'migrate', 'start-app']
+      }
+    ],
     blockers: [],
     ...overrides
   }
@@ -139,10 +170,124 @@ describe('CAP-01/CAP-02 buildCapabilityVerdict', () => {
 
     expect(verdict.decision).toBe('can-act')
     expect(verdict.nextStepId).toBe('install')
+    expect(verdict.unknownEvidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'unknown:auth:registry',
+          state: 'unresolved-until-execution'
+        }),
+        expect.objectContaining({
+          id: 'unknown:network:registry',
+          state: 'unresolved-until-execution'
+        })
+      ])
+    )
+    expect(verdict.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'auth:registry',
+          state: 'unknown',
+          unknownState: 'unresolved-until-execution',
+          evidence: expect.arrayContaining(['unknown:auth:registry'])
+        }),
+        expect.objectContaining({
+          id: 'network:registry',
+          state: 'unknown',
+          unknownState: 'unresolved-until-execution',
+          evidence: expect.arrayContaining(['unknown:network:registry'])
+        })
+      ])
+    )
     expect(verdict.caveats).toEqual(
       expect.arrayContaining([
         expect.stringContaining('authentication'),
         expect.stringContaining('Network')
+      ])
+    )
+  })
+
+  it('threads planner fact and contradiction references into capability checks', () => {
+    const verdict = buildCapabilityVerdict(
+      loaded.spec,
+      createPlan({
+        blockers: [
+          {
+            id: 'service:postgres',
+            scope: 'service',
+            message: 'No viable service branch is currently ready for postgres.',
+            stepIds: ['start-postgres', 'migrate', 'start-app'],
+            factRefs: [
+              {
+                id: 'fact:repo:service-option:docker-compose:declared',
+                source: 'declared',
+                subject: 'service-option.postgres.docker-compose.declared',
+                state: 'satisfied',
+                summary: 'docker-compose declared as supported path',
+                affectsStepIds: ['start-postgres', 'migrate', 'start-app']
+              },
+              {
+                id: 'fact:repo:service-option:docker-compose:viability',
+                source: 'inferred',
+                subject: 'service-option.postgres.docker-compose.viability',
+                state: 'missing',
+                summary: 'repo is missing docker compose hints',
+                affectsStepIds: ['start-postgres', 'migrate', 'start-app']
+              }
+            ],
+            contradictionRefs: ['contradiction:service-option:docker-compose:declared-vs-observed']
+          }
+        ],
+        factRefs: [
+          {
+            id: 'fact:repo:service-option:docker-compose:declared',
+            source: 'declared',
+            subject: 'service-option.postgres.docker-compose.declared',
+            state: 'satisfied',
+            summary: 'docker-compose declared as supported path',
+            affectsStepIds: ['start-postgres', 'migrate', 'start-app']
+          }
+        ],
+        contradictions: [
+          {
+            id: 'contradiction:service-option:docker-compose:declared-vs-observed',
+            declaredFactId: 'fact:repo:service-option:docker-compose:declared',
+            observedFactId: 'fact:repo:service-option:docker-compose:viability',
+            summary: 'Declared compose path conflicts with observed repo hints',
+            affectsStepIds: ['start-postgres', 'migrate', 'start-app']
+          }
+        ]
+      }),
+      createMachine(),
+      createSession()
+    )
+
+    expect(verdict.contradictions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'contradiction:service-option:docker-compose:declared-vs-observed'
+        })
+      ])
+    )
+    expect(verdict.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'service:postgres',
+          contradictionRefs: ['contradiction:service-option:docker-compose:declared-vs-observed'],
+          factRefs: expect.arrayContaining([
+            'fact:repo:service-option:docker-compose:declared',
+            'fact:repo:service-option:docker-compose:viability'
+          ])
+        })
+      ])
+    )
+    expect(verdict.factRefs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'fact:repo:service-option:docker-compose:declared'
+        }),
+        expect.objectContaining({
+          id: 'fact:session:repo-root-writable'
+        })
       ])
     )
   })
