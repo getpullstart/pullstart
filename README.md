@@ -38,6 +38,31 @@ Pullstart V1 is scoped to:
 
 The current contract candidate is `setup.spec.yaml`, but the idea of an onboarding contract matters more than the exact filename.
 
+## Phase 5 proof status
+
+### Proven now
+
+- Pullstart has been exercised on one locked proof target (`file:///tmp/pullstart-phase5-proof-repo` at commit `4c87ba3f944c838f26ae152823fc254804d6bc9b`).
+- The same repo/commit produced both a success run and a trustworthy blocked run.
+- Blocked output preserved clear reason and one actionable next step (`verification target was already healthy before start-app` → stop existing process and rerun).
+
+### Manual required
+
+- Real repo onboarding still depends on user-controlled machine/service state (tool installs, env values, service startup ownership).
+- Ambiguous pre-healthy verification targets must be resolved by the user before rerun to prove repository-owned startup.
+- Auth/network certainty for registry access remains unknown pre-execution and is surfaced as caveats, not hidden.
+
+### Deferred
+
+- Multi-repo portability claims.
+- Broader orchestration UX (rich TUI logging, preference memory, smart rerun/up semantics) remains backlog work.
+- Platform-style plugin/control-plane features remain out of MVP.
+
+### Unresolved ambiguities
+
+- If the verification target is already healthy before managed `start-app`, Pullstart cannot prove startup ownership and blocks for a clean rerun.
+- Registry auth/network certainty is intentionally unknown before execution and only resolves during runtime attempts.
+
 Pullstart V1 does not include:
 
 - a broad developer platform
@@ -65,8 +90,10 @@ This repo currently includes:
 - a strict contract loader
 - repo and machine inspection
 - a planner that can produce a blocker-first bootstrap plan
-
-Next, Pullstart needs the bounded execution and verification layer that can turn the plan into a real onboarding result.
+- capability verdict generation
+- bounded execution and managed verification
+- deterministic blocker classification for planner/runtime output
+- first proof-repo validation artifacts for success and blocked outcomes
 
 ## Roadmap
 
