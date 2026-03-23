@@ -12,7 +12,7 @@ Pullstart reaches MVP by proving one contract-driven onboarding flow on one cred
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Contract Model And MVP Slice** - Lock the onboarding contract, proof target, and execution boundaries in an implementation-ready form.
+- [x] **Phase 1: Contract Model And MVP Slice** - Lock the onboarding contract, proof target, and execution boundaries in an implementation-ready form. (completed 2026-03-23)
 - [ ] **Phase 2: Minimal Onboarding Planner** - Consume the frozen contract and proof checklist to produce a safe ordered bootstrap plan.
 - [ ] **Phase 3: Minimal Executor And Verifier** - Run or guide the setup path and verify the repo is runnable enough.
 - [ ] **Phase 4: Failure Classification** - Normalize the most common onboarding blockers into clear actionable output.
@@ -101,7 +101,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Contract Model And MVP Slice | 2/3 | In progress | - |
+| 1. Contract Model And MVP Slice | 3/3 | Complete | 2026-03-23 |
 | 2. Minimal Onboarding Planner | 0/3 | Not started | - |
 | 3. Minimal Executor And Verifier | 0/3 | Not started | - |
 | 4. Failure Classification | 0/2 | Not started | - |
