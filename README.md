@@ -1,8 +1,8 @@
 # Pullstart
 
-Pullstart is a repo-aware onboarding agent for getting cloned projects running faster.
+Pullstart is a repo-aware onboarding product being built to get cloned projects running faster.
 
-It reads setup contracts, checks the local environment, plans the shortest safe bootstrap path, executes or guides the critical setup steps, and verifies whether the repo is actually runnable enough to proceed.
+Phase 1 freezes the contract and proof boundary for MVP. Phase 2 starts building the planner and later phases add execution, verification, and blocker reporting against that frozen surface.
 
 ## The wedge
 
@@ -24,25 +24,24 @@ The first target user is an engineer who can run commands, but should not have t
 
 ## How MVP works
 
-At MVP, Pullstart focuses on six things:
+The MVP contract and proof slice are intentionally narrow:
 
 1. Read one canonical onboarding contract: `setup.spec.yaml`
-2. Inspect the repo and local machine state
-3. Identify missing prerequisites and risky gaps
-4. Produce a step-by-step bootstrap plan
-5. Run or guide the smallest safe sequence of setup actions
-6. Verify one declared success path and explain blockers clearly
+2. Inspect repo and machine state for one proof repo type
+3. Produce the shortest safe bootstrap plan before risky work
+4. Run or guide the smallest safe setup sequence in later phases
+5. Verify one declared success path and report one trustworthy blocked path
+6. Keep every broader platform idea outside the MVP promise
 
 ## MVP scope
 
-Pullstart v1 includes:
+Pullstart v1 is scoped to:
 
 - contract-driven repo onboarding
-- local environment checks
-- ordered setup planning
-- guided or automated bootstrap execution
-- structured blocker reporting
-- verification of one meaningful "repo is running" path
+- one canonical onboarding contract: `setup.spec.yaml`
+- one proof repo family: a Node.js API backed by PostgreSQL
+- ordered setup planning, guided execution, verification, and blocker reporting delivered phase-by-phase
+- one meaningful "repo is running" proof path plus one trustworthy blocked outcome
 
 Pullstart v1 does not include:
 
@@ -61,21 +60,23 @@ Other files like `README.md`, `AGENTS.md`, and `ONBOARDING.md` still matter, but
 
 ## First proof scenario
 
-The first proof target is a single Node.js API repo with:
+The first proof target is a single Node.js API proof repo with:
 
 - PostgreSQL
 - `.env.example`
 - migrations
 - one API health check
 
-Pullstart wins if a developer can clone that repo on a half-prepared machine, run Pullstart, and end with the app booting locally plus a passing health verification, or a precise blocker report that names the missing prerequisite.
+Pullstart earns its first proof only if a developer can clone that repo on a half-prepared machine, run the eventual MVP flow, and end with the app booting locally plus a passing health verification, or a precise blocker report that names the missing prerequisite.
+
+Until that proof exists, Pullstart does not claim broad portability across arbitrary repos or stacks.
 
 ## Roadmap
 
 The roadmap intentionally stays narrow:
 
-- Phase 1: contract model and product framing
-- Phase 2: minimal planner
+- Phase 1: contract model and MVP slice
+- Phase 2: minimal planner against the frozen contract and proof checklist
 - Phase 3: minimal executor and verifier
 - Phase 4: failure classification
 - Phase 5: one real repo proof

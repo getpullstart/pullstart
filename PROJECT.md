@@ -2,7 +2,7 @@
 
 ## Product statement
 
-Pullstart is a repo-aware onboarding agent that reads setup contracts, checks the local environment, plans the shortest safe bootstrap path, executes or guides setup steps, and verifies the result.
+Pullstart is a repo-aware onboarding product being built to read setup contracts, check the local environment, plan the shortest safe bootstrap path, execute or guide setup steps, and verify the result.
 
 ## Target user
 
@@ -26,6 +26,8 @@ The initial product promise is simple:
 - Wedge: read a declared setup contract, inspect local state, and drive the shortest safe path from clone to runnable
 - First success moment: the developer sees the repo boot locally and pass one declared verification flow, or gets a structured blocker report instead of a vague failure wall
 - First proof repo type: a Node.js API service backed by PostgreSQL with env setup, migrations, and a health endpoint
+- MVP source of truth: `setup.spec.yaml`, with docs and architecture notes staying secondary
+- Phase boundary: Phase 1 freezes the contract and proof slice; Phase 2 consumes that boundary to build the planner
 - Why now: more teams are using agents, but repo setup is still fragmented across README notes, shell scripts, and implicit expectations
 - Why narrower than adjacent ideas: Pullstart is not trying to run all software work, manage memory across projects, or become an agent platform; it is focused on one painful transition point from clone to working local setup
 
@@ -83,27 +85,30 @@ A developer has cloned the repo on a machine that may be missing one or more pre
 
 ### What Pullstart reads
 
-- `setup.spec.yaml`
-- package manager and runtime metadata
-- `.env.example`
-- repo hints such as `package.json`, Docker files, and migration scripts
+- Phase 1 defines this boundary in docs and schema only:
+  - `setup.spec.yaml`
+  - package manager and runtime metadata
+  - `.env.example`
+  - repo hints such as `package.json`, Docker files, and migration scripts
 
 ### What Pullstart decides
 
-- whether the machine meets declared prerequisites
-- whether local services should be started directly or via Docker
-- which bootstrap steps are mandatory before app launch
-- whether the success path is reachable now or blocked
+- Later implementation phases decide:
+  - whether the machine meets declared prerequisites
+  - whether local services should be started directly or via Docker
+  - which bootstrap steps are mandatory before app launch
+  - whether the success path is reachable now or blocked
 
 ### What Pullstart runs or guides
 
-- toolchain checks
-- env file setup guidance
-- dependency install
-- local service start commands
-- database migration
-- application start command
-- verification command or health check
+- Phase 2 and Phase 3 are expected to cover:
+  - toolchain checks
+  - env file setup guidance
+  - dependency install
+  - local service start commands
+  - database migration
+  - application start command
+  - verification command or health check
 
 ### Meaningful MVP win
 
@@ -111,6 +116,8 @@ Pullstart produces a safe ordered plan, executes or guides the required setup fl
 
 - the app starts locally and the declared health check passes
 - the setup stops with a structured blocker report that clearly identifies the missing prerequisite or failing step
+
+That is the first proof scenario, not an already-earned portability claim.
 
 ## Product principles
 
