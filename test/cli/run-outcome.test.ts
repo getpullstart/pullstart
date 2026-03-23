@@ -187,4 +187,30 @@ describe('EXEC-02/EXEC-04 run outcome reporting', () => {
     })
     expect(repo).toContain('Category: repo-setup')
   })
+
+  it('surfaces external-access family in blocked summaries with one deterministic next action', () => {
+    const rendered = renderRunOutcome({
+      status: 'blocked',
+      reason: 'step install failed',
+      nextAction: 'Use a token with package read access, then rerun Pullstart.',
+      executedStepIds: ['install'],
+      events: [
+        {
+          type: 'step-failed',
+          at: new Date().toISOString(),
+          stepId: 'install',
+          message: 'install failed against private registry',
+          details: {
+            stderr: 'npm ERR! code E403 permission denied while requesting private registry package'
+          }
+        }
+      ],
+      caveats: []
+    })
+
+    expect(rendered).toContain('Category: external-access')
+    expect(rendered).toContain('Family: registry-permission-denied')
+    expect(rendered).toContain('Next action: Use a token with package read access, then rerun Pullstart.')
+    expect((rendered.match(/Next action:/g) ?? []).length).toBe(1)
+  })
 })
